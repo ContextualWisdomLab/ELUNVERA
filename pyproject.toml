@@ -1,0 +1,10 @@
+[project]
+name = "elunvera"
+version = "0.1.0"
+description = "Relationship activation — every link understood, every relationship activated."
+requires-python = ">=3.12"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
