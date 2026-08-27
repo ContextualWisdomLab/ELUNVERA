@@ -1,0 +1,334 @@
+{
+  "schema_version": "1.0",
+  "product": "ELUNVERA",
+  "generated_at": "2026-08-27T00:00:00Z",
+  "algorithm": "SHA-256",
+  "self_excluded": true,
+  "file_count": 54,
+  "files": [
+    {
+      "path": ".cwl/data-management.yaml",
+      "sha256": "28a06ccaf397a9da80f49ca09742a8cd18091c96c0ecb0f463192dfcea895671",
+      "size_bytes": 1727,
+      "line_count": 48
+    },
+    {
+      "path": ".github/pull_request_template.md",
+      "sha256": "d7584adf5eb9866449fc5f38dc490422bf23de31ae75e1bdb385265c68122d15",
+      "size_bytes": 1064,
+      "line_count": 38
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "8d308fc7f687ad53e18aabc95cbb175a48450b8bfe502b29562f0afd9c950d13",
+      "size_bytes": 4022,
+      "line_count": 84
+    },
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "335c872458d18069fd76569b0eb49ff1062c6f6b44ef2ba58e714e207ab1f098",
+      "size_bytes": 1154,
+      "line_count": 24
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "67f513ae368f851201f50b6f732f444a648b3a940ca261411edbbc4c9f1ab223",
+      "size_bytes": 1684,
+      "line_count": 34
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "61698c99617bbdd3fab3150341899c967c647cf5aa5ec9756d9cf6fa99571e60",
+      "size_bytes": 1566,
+      "line_count": 43
+    },
+    {
+      "path": "README.md",
+      "sha256": "9d355be62b9bf5b8e90a6bfa204db40abbf5fd2d9307733501172983c465546c",
+      "size_bytes": 4974,
+      "line_count": 81
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "4bfbb000844294b22ff9882211ee0a57b38e637002847cfdde8818b9276851eb",
+      "size_bytes": 1091,
+      "line_count": 32
+    },
+    {
+      "path": "docs/API_CONTRACT.md",
+      "sha256": "8c23a286938b7e44c5e6990104b249fe4dabb499f47f38566407cb324ddd7170",
+      "size_bytes": 9253,
+      "line_count": 287
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "sha256": "f4e39936636d48ed0d4d1c21f02562860be1af19fe8eec2d75e1d9049c30861f",
+      "size_bytes": 9402,
+      "line_count": 250
+    },
+    {
+      "path": "docs/DATA_MODEL.md",
+      "sha256": "3bbfe050809c960406514ff3ad0d8a273dc84b80c377189fd23f2c80f40da10a",
+      "size_bytes": 15101,
+      "line_count": 504
+    },
+    {
+      "path": "docs/OPERABILITY.md",
+      "sha256": "1c725823885df063bb43d8d9e4d80258ed6b9ef5029bb97cdf5100f7ec7dc80d",
+      "size_bytes": 7003,
+      "line_count": 151
+    },
+    {
+      "path": "docs/PRD.md",
+      "sha256": "8d074776a4cd2a8465daefb98751cf01ffd7ffcb1a328f8deea6362e728ab860",
+      "size_bytes": 22102,
+      "line_count": 366
+    },
+    {
+      "path": "docs/PRIVACY.md",
+      "sha256": "0599406e743af7c561208da8ad505c704ea585cebeb941444d221584aad5e004",
+      "size_bytes": 6899,
+      "line_count": 141
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "sha256": "1a00a118088f908cce4449a1532f35231f383c7d415fff5136624bf970b926c7",
+      "size_bytes": 3418,
+      "line_count": 84
+    },
+    {
+      "path": "docs/SECURITY.md",
+      "sha256": "d10ae9757a7233b9ce73eaa038f75939d22da4709ac6db7ee16fe4b291bd64dd",
+      "size_bytes": 8100,
+      "line_count": 174
+    },
+    {
+      "path": "docs/STORYBOARD.md",
+      "sha256": "c9e2d38ca25e024a7599afeff711187be272cebc7c51a9ca603846bf33bda392",
+      "size_bytes": 2775,
+      "line_count": 41
+    },
+    {
+      "path": "docs/STORYBOOK_INVENTORY.md",
+      "sha256": "e210ed7072720bef3b825f226419ff25dd68ee412d5272f0e5d51234b8ea4fe1",
+      "size_bytes": 2354,
+      "line_count": 99
+    },
+    {
+      "path": "docs/TEST_STRATEGY.md",
+      "sha256": "b0f24b7fe2518c2d9e214868e7f7fe3189cc49307b988723dec5d939f82c9af0",
+      "size_bytes": 7302,
+      "line_count": 170
+    },
+    {
+      "path": "docs/THREAT_MODEL.md",
+      "sha256": "1dc10db1d5fb0a314e25cd78c9bb1ed90b40315dbb3a32d387c2b5758910100f",
+      "size_bytes": 7043,
+      "line_count": 132
+    },
+    {
+      "path": "docs/TRD.md",
+      "sha256": "13f332255239f79e773bcce00a6b19a2051ff5cb7273ae0e24ca6413a38ea0fc",
+      "size_bytes": 14747,
+      "line_count": 342
+    },
+    {
+      "path": "docs/UML.md",
+      "sha256": "882a33a38bda7494e370f4135b9a3d7c5d3cf054d47cc511f3813eb046916d0c",
+      "size_bytes": 3165,
+      "line_count": 115
+    },
+    {
+      "path": "docs/USER_STORIES.md",
+      "sha256": "cdc8e1a2b74d7821279dfe0f07dda2d25b9bae088a720b9a6fb19270af36208c",
+      "size_bytes": 3184,
+      "line_count": 37
+    },
+    {
+      "path": "docs/USE_CASES.md",
+      "sha256": "4df536423c1796793edd35c200b624e6ec1daa87adf6ace9748608f24c254022",
+      "size_bytes": 4357,
+      "line_count": 69
+    },
+    {
+      "path": "docs/UX_SPEC.md",
+      "sha256": "ed3dc4b9738f5a0fbfa2f8176379a14c4b3a222b7b305c1fc31ea61e257115be",
+      "size_bytes": 6609,
+      "line_count": 171
+    },
+    {
+      "path": "docs/VALIDATION_REPORT.md",
+      "sha256": "116e9549728e8b374ee492ad622ade97eec33e4bfc49d0b3e238109af1ef512c",
+      "size_bytes": 2008,
+      "line_count": 49
+    },
+    {
+      "path": "docs/WIREFRAMES.md",
+      "sha256": "e989815acd882701ff2737036ae6f278b5a01c45081204c3c65c33c9dc0e4f01",
+      "size_bytes": 4526,
+      "line_count": 81
+    },
+    {
+      "path": "docs/adr/0001-product-boundary.md",
+      "sha256": "86f3513bdfa2c2c8766c6c2afdbec7b099778982e9246efe729b5d9f76da3e24",
+      "size_bytes": 1151,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0002-modular-monolith.md",
+      "sha256": "0415bc80db206f5581c758a83f09abe14bfa5e45e76fbc2b38b7bb958d2342bb",
+      "size_bytes": 955,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0003-keyverse-identity.md",
+      "sha256": "10fccb512eff2665cf0b43ef5bbef1cdf4501962e0ae353777f131a75552c309",
+      "size_bytes": 865,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0004-bitemporal-truth.md",
+      "sha256": "d7d85c1fefeed397e417653a46e1ddd2d9505740f9369d2f16769dac344d373c",
+      "size_bytes": 875,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0005-first-class-relationships.md",
+      "sha256": "1130b14f9f448d3aba40086cb1355683c0d5b4891368706c860b41e5467a5852",
+      "size_bytes": 848,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0006-provider-neutral-integrations.md",
+      "sha256": "318a12fb63ed4c788af86aa45ff1c95430f6f199bf012c1f966b073be469e7a9",
+      "size_bytes": 861,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0007-purpose-aware-privacy.md",
+      "sha256": "9ce6767604ee5787e0e2b4f051272cb7a2288be4dc8ba06e1b7bd3ffe54b0664",
+      "size_bytes": 944,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0008-ai-human-judgment.md",
+      "sha256": "1d2d14e8b6b0a03a18180a6e1a7efe9b2212afda74bd250c1c8745e5f700706d",
+      "size_bytes": 950,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0009-postgresql-system-of-record.md",
+      "sha256": "9ca96bc56d1658c933f89e3fe34b24cf0707e1b2e4862bc4929c8f4889b36bf7",
+      "size_bytes": 862,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0010-rust-compute-boundary.md",
+      "sha256": "b9e7d8f0da93a8c5f8dec5892d097c2eaab7eb4057b1a0f7a510ff22f29a5ccf",
+      "size_bytes": 979,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0011-contract-versioning.md",
+      "sha256": "76381bc76cfd59fd2a4bbd8831c217f1e6ca2625079d5c59b90d09fadc5f8afb",
+      "size_bytes": 877,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0012-quality-release-gates.md",
+      "sha256": "7083f64c1d394ad57cb8a1f19a9728b39dc032f59c6c159dabf2603751625144",
+      "size_bytes": 945,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0013-brand-and-license.md",
+      "sha256": "9b54fd5c0fc4de13f647e1c8955c69c6cffd90766c8dd946e1d34322a7adc0de",
+      "size_bytes": 923,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0014-ux-design-system.md",
+      "sha256": "3121dfd4944a529a526a1ff3809d5c83a35360136973672f01a5d262f9a3d50a",
+      "size_bytes": 977,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0015-retention-disposition.md",
+      "sha256": "2b6b3fc4e3ddad2564e7bd9819d4aa4f980e3befb12d947ede25987a041e654c",
+      "size_bytes": 915,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/0016-cwl-ecosystem-boundaries.md",
+      "sha256": "fb59ab82e8a9c5e19702412e25e22318587fd155a4dd41b14de6497b1de8066d",
+      "size_bytes": 964,
+      "line_count": 21
+    },
+    {
+      "path": "docs/adr/README.md",
+      "sha256": "b54b4bc29ff5a2d385c23bd7049bc64e1cf04277147afa70057b20ba8b5f46e1",
+      "size_bytes": 1806,
+      "line_count": 22
+    },
+    {
+      "path": "docs/doctoring/REFERENCES.md",
+      "sha256": "3508c3d2c9a886cb1e6fa5ed90a380e22feac730dcde737c953b1e1e04d3d5fb",
+      "size_bytes": 4519,
+      "line_count": 59
+    },
+    {
+      "path": "docs/doctoring/RESEARCH_BASIS.md",
+      "sha256": "1ecf6adb21fc6cfbf355fb61256c93fb20028ae228b8c910d97a867d73f184a4",
+      "size_bytes": 2221,
+      "line_count": 29
+    },
+    {
+      "path": "docs/doctoring/STANDARD_TRACEABILITY.md",
+      "sha256": "38d44ddfab32c0a7bf2bb7935bded795dd0a84800427e5518d64ff6a261f2314",
+      "size_bytes": 2560,
+      "line_count": 22
+    },
+    {
+      "path": "docs/product-technical-gap-baseline.md",
+      "sha256": "39e5adf829a46271ce3939cbf2259108b25d0ff39c26128c38229a2f808f8301",
+      "size_bytes": 8851,
+      "line_count": 142
+    },
+    {
+      "path": "docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md",
+      "sha256": "ed833198cc2e5f7ebcc9f22b402f25dbdc647ce19657c4759c85299f0c37f0fc",
+      "size_bytes": 16009,
+      "line_count": 433
+    },
+    {
+      "path": "docs/superpowers/specs/2026-08-27-elunvera-product-technical-baseline-design.md",
+      "sha256": "3ea901999f778ebe4aa5118024da82f4b72457814f8a715df7440ce41726cb5d",
+      "size_bytes": 4492,
+      "line_count": 67
+    },
+    {
+      "path": "schemas/asyncapi.yaml",
+      "sha256": "2670697f82e5046f07e9938bae12f95f59bba7c66113990a826820149b8b00a6",
+      "size_bytes": 2837,
+      "line_count": 75
+    },
+    {
+      "path": "schemas/events/opportunity-stage-changed-v1.schema.json",
+      "sha256": "1a65236b1a0703abbe74c568692c851336393c62e84e6977f13356a5a16f03b1",
+      "size_bytes": 1299,
+      "line_count": 57
+    },
+    {
+      "path": "schemas/events/relationship-changed-v1.schema.json",
+      "sha256": "5bd9b1504d8c1ad1c9c3df4cd1d8a39e31b4fc15a10633707da222be6814dcb0",
+      "size_bytes": 1358,
+      "line_count": 66
+    },
+    {
+      "path": "schemas/openapi.yaml",
+      "sha256": "03adaef269648275bd5d9e44d99a7f990f18efbf05a40771b628b971de79e8fb",
+      "size_bytes": 9293,
+      "line_count": 275
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+# Changelog
+
+All notable changes to ELUNVERA will be documented in this file.
+
+The format follows Keep a Changelog principles, and versioning will begin when the first executable release candidate exists.
+
+## [Unreleased]
+
+### Added
+
+- Initial ELUNVERA product and technical documentation baseline.
+- Product requirements, technical requirements, architecture, data model, API and event contracts.
+- Security, privacy, threat-model, testing, operability, UX, user-story, use-case, storyboard, wireframe, and Storybook baselines.
+- Architecture decision record set covering product ownership, modularity, identity, tenancy, temporal facts, relationships, integrations, privacy, AI, persistence, APIs, quality, UX, retention, and ecosystem boundaries.
+- OpenAPI 3.2.0 and AsyncAPI 3.1.0 draft contracts.
+- Initial product-technical gap baseline and phased implementation plan.
+
+### Security
+
+- Defined fail-closed tenant isolation, purpose-aware authorization, immutable audit, model provenance, controlled egress, and customer-data disclosure boundaries.
+
+### Notes
+
+- No runtime, database schema, deployment artifact, or release exists in this baseline.
