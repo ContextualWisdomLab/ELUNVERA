@@ -1,0 +1,46 @@
+{
+  "relationships": [
+    {
+      "id": "rel-001",
+      "from_party": "Seongho Bae",
+      "to_party": "Hanul Design Atelier",
+      "kind": "partner",
+      "next_move": "Send the activation-queue walkthrough and agree the next joint review date",
+      "due": "2026-08-28",
+      "why_now": "The partnership is named; no next move is on the calendar.",
+      "status": "due",
+      "lineage_cite": null
+    },
+    {
+      "id": "rel-002",
+      "from_party": "Seongho Bae",
+      "to_party": "Minseo Park",
+      "kind": "advisor",
+      "next_move": "Share the ELUNVERA boundary note (queue, not graph) before Friday office hours",
+      "due": "2026-08-29",
+      "why_now": "Advisor time is reserved; the brief is still unsent.",
+      "status": "due"
+    },
+    {
+      "id": "rel-003",
+      "from_party": "ContextualWisdomLab",
+      "to_party": "Riverstone Clinic front desk",
+      "kind": "account-contact",
+      "next_move": "Confirm who owns weekly check-in now that the trial week ended",
+      "due": "2026-08-27",
+      "why_now": "The trial ended today; silence here drops the link.",
+      "status": "due"
+    },
+    {
+      "id": "rel-004",
+      "from_party": "ELUNVERA",
+      "to_party": "LineageWeave maintainers",
+      "kind": "collaborator",
+      "next_move": "Cite, do not copy: ask for a node id if a queue row must point at lineage",
+      "due": "2026-09-03",
+      "why_now": "First slice ships without a second DAG; the citation contract still needs a named owner.",
+      "status": "due",
+      "lineage_cite": null
+    }
+  ]
+}
