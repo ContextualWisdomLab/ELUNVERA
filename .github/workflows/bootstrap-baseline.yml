@@ -1,9 +1,6 @@
 name: Bootstrap ELUNVERA documentation baseline
 
 on:
-  push:
-    branches:
-      - docs/product-technical-baseline
   workflow_dispatch:
 
 permissions:
