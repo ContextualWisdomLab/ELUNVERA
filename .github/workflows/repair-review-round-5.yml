@@ -1,0 +1,38 @@
+name: deterministic ELUNVERA contract review repair
+
+on:
+  push:
+    branches:
+      - docs/product-technical-baseline
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out triggering revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Repair, validate, commit, and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          python3 tools/repair_contract_review_round5.py
+          ruby -ryaml -e "YAML.safe_load(File.read('schemas/openapi.yaml'), aliases: false); YAML.safe_load(File.read('schemas/asyncapi.yaml'), aliases: false); YAML.safe_load(File.read('.github/workflows/document-contracts.yml'), aliases: false)"
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          test -n "$(git diff --cached --name-only)"
+          git commit -m "fix: close remaining contract review findings"
+          git push origin HEAD:docs/product-technical-baseline
