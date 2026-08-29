@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-08-29T00:00:00Z",
+  "generated_at": "2026-08-29T12:50:00Z",
   "algorithm": "SHA-256",
   "self_excluded": true,
-  "file_count": 54,
+  "file_count": 55,
   "files": [
     {
       "path": ".cwl/data-management.yaml",
@@ -17,6 +17,12 @@
       "sha256": "d7584adf5eb9866449fc5f38dc490422bf23de31ae75e1bdb385265c68122d15",
       "size_bytes": 1064,
       "line_count": 38
+    },
+    {
+      "path": ".github/workflows/document-contracts.yml",
+      "sha256": "4753940663837d4326b3954a300545738ec5a16ef72bd9e6cfcadc6ab2ea00f1",
+      "size_bytes": 7127,
+      "line_count": 160
     },
     {
       "path": "AGENTS.md",
