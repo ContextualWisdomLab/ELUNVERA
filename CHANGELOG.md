@@ -15,6 +15,13 @@ The format follows Keep a Changelog principles, and versioning will begin when t
 - OpenAPI 3.2.0 and AsyncAPI 3.1.0 draft contracts.
 - Initial product-technical gap baseline and phased implementation plan.
 
+### Fixed
+
+- Aligned the narrative HTTP inventory with the authoritative OpenAPI P0 surface.
+- Added temporal read parameters and effective-lens response headers to the machine-readable HTTP contract.
+- Corrected AsyncAPI operations to publish ELUNVERA domain events and required classification/schema metadata.
+- Added explicit `recorded_at` payload fields so outbox publication delay cannot corrupt bitemporal reconstruction.
+
 ### Security
 
 - Defined fail-closed tenant isolation, purpose-aware authorization, immutable audit, model provenance, controlled egress, and customer-data disclosure boundaries.

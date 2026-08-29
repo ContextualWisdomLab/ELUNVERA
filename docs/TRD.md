@@ -229,9 +229,12 @@ tenantref
 correlationid
 causationid
 provenanceref
-data_classification
-schema_revision
+purposecode
+dataclassification
+schemarevision
 ```
+
+The internal metadata names `data_classification` and `schema_revision` serialize as the wire attributes `dataclassification` and `schemarevision`. `time` is publication time. Event payloads that describe bitemporal facts also require an immutable `recorded_at`; consumers must not substitute publication time for system-recorded time.
 
 Events contain opaque references and minimum necessary data. Consumers retrieve authorized details from the owning API.
 

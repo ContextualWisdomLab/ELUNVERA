@@ -7,6 +7,7 @@
   "required": [
     "relationship_id",
     "aggregate_version",
+    "recorded_at",
     "truth_status",
     "valid_from",
     "participant_references",
@@ -20,6 +21,11 @@
     "aggregate_version": {
       "type": "integer",
       "minimum": 1
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Immutable system time when this aggregate version was recorded."
     },
     "truth_status": {
       "enum": [

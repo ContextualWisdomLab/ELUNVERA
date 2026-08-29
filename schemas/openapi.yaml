@@ -3,21 +3,23 @@ info:
   title: ELUNVERA API
   version: 0.1.0
   summary: Evidence-centered CRM contract baseline
-  description: >-
-    Proposed HTTP contract. This repository baseline does not assert an implemented service.
+  description: Proposed HTTP contract. This repository baseline does not assert an implemented service.
 servers:
-  - url: https://elunvera.invalid/v1
-    description: Documentation-only placeholder domain; not a deployed service
+- url: https://elunvera.invalid/v1
+  description: Documentation-only placeholder domain; not a deployed service
 security:
-  - keyverseBearer: []
+- keyverseBearer: []
 paths:
   /accounts:
     get:
       operationId: listAccounts
       summary: List tenant-scoped commercial accounts
       parameters:
-        - $ref: '#/components/parameters/PageCursor'
-        - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/PageCursor'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/ValidAt'
+      - $ref: '#/components/parameters/RecordedAt'
+      - $ref: '#/components/parameters/KnowledgeCutoff'
       responses:
         '200':
           description: Account page
@@ -25,13 +27,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountPage'
+          headers:
+            X-ELUNVERA-Valid-At:
+              $ref: '#/components/headers/EffectiveValidAt'
+            X-ELUNVERA-Recorded-At:
+              $ref: '#/components/headers/EffectiveRecordedAt'
+            X-ELUNVERA-Knowledge-Cutoff:
+              $ref: '#/components/headers/EffectiveKnowledgeCutoff'
         default:
           $ref: '#/components/responses/Problem'
     post:
       operationId: createAccount
       summary: Create a commercial account
       parameters:
-        - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CorrelationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -43,7 +53,8 @@ paths:
           description: Created
           headers:
             ETag:
-              schema: { type: string }
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -52,7 +63,7 @@ paths:
           $ref: '#/components/responses/Problem'
   /accounts/{account_id}:
     parameters:
-      - $ref: '#/components/parameters/AccountId'
+    - $ref: '#/components/parameters/AccountId'
     get:
       operationId: getAccount
       summary: Get an account under the active temporal lens
@@ -61,19 +72,31 @@ paths:
           description: Account
           headers:
             ETag:
-              schema: { type: string }
+              schema:
+                type: string
+            X-ELUNVERA-Valid-At:
+              $ref: '#/components/headers/EffectiveValidAt'
+            X-ELUNVERA-Recorded-At:
+              $ref: '#/components/headers/EffectiveRecordedAt'
+            X-ELUNVERA-Knowledge-Cutoff:
+              $ref: '#/components/headers/EffectiveKnowledgeCutoff'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Account'
         default:
           $ref: '#/components/responses/Problem'
+      parameters:
+      - $ref: '#/components/parameters/ValidAt'
+      - $ref: '#/components/parameters/RecordedAt'
+      - $ref: '#/components/parameters/KnowledgeCutoff'
     patch:
       operationId: updateAccount
       summary: Update an account using optimistic concurrency
       parameters:
-        - $ref: '#/components/parameters/IdempotencyKey'
-        - $ref: '#/components/parameters/IfMatch'
+      - $ref: '#/components/parameters/CorrelationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/IfMatch'
       requestBody:
         required: true
         content:
@@ -87,6 +110,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OperationReceipt'
+          headers:
+            ETag:
+              description: Entity tag for the resulting aggregate version.
+              schema:
+                type: string
         default:
           $ref: '#/components/responses/Problem'
   /relationships:
@@ -94,7 +122,8 @@ paths:
       operationId: recordRelationship
       summary: Record a time-valid evidence-linked relationship
       parameters:
-        - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CorrelationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
@@ -115,12 +144,15 @@ paths:
       operationId: transitionOpportunityStage
       summary: Append an opportunity stage transition
       parameters:
-        - name: opportunity_id
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-        - $ref: '#/components/parameters/IdempotencyKey'
-        - $ref: '#/components/parameters/IfMatch'
+      - name: opportunity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/CorrelationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/IfMatch'
       requestBody:
         required: true
         content:
@@ -147,27 +179,79 @@ components:
       name: account_id
       in: path
       required: true
-      schema: { type: string, format: uuid }
+      schema:
+        type: string
+        format: uuid
     IdempotencyKey:
       name: Idempotency-Key
       in: header
       required: true
-      schema: { type: string, minLength: 16, maxLength: 128 }
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
     IfMatch:
       name: If-Match
       in: header
       required: true
-      schema: { type: string }
+      schema:
+        type: string
     PageCursor:
       name: cursor
       in: query
       required: false
-      schema: { type: [string, 'null'] }
+      schema:
+        type:
+        - string
+        - 'null'
     PageSize:
       name: page_size
       in: query
       required: false
-      schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: true
+      description: Stable request correlation identifier generated by the caller.
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 128
+    ValidAt:
+      name: valid_at
+      in: query
+      required: false
+      description: Business-valid instant used to select time-valid facts.
+      schema:
+        type:
+        - string
+        - 'null'
+        format: date-time
+    RecordedAt:
+      name: recorded_at
+      in: query
+      required: false
+      description: System-recorded instant used to reconstruct what ELUNVERA knew.
+      schema:
+        type:
+        - string
+        - 'null'
+        format: date-time
+    KnowledgeCutoff:
+      name: knowledge_cutoff
+      in: query
+      required: false
+      description: Latest recorded instant whose facts may contribute to this response.
+      schema:
+        type:
+        - string
+        - 'null'
+        format: date-time
   responses:
     Problem:
       description: RFC 9457 problem
@@ -179,42 +263,93 @@ components:
     Account:
       type: object
       additionalProperties: false
-      required: [account_id, account_name, lifecycle_status, aggregate_version]
+      required:
+      - account_id
+      - account_name
+      - lifecycle_status
+      - aggregate_version
       properties:
-        account_id: { type: string, format: uuid }
-        account_name: { type: string, minLength: 1, maxLength: 300 }
-        lifecycle_status: { type: string, enum: [prospective, active, inactive, closed] }
-        aggregate_version: { type: integer, minimum: 1 }
+        account_id:
+          type: string
+          format: uuid
+        account_name:
+          type: string
+          minLength: 1
+          maxLength: 300
+        lifecycle_status:
+          type: string
+          enum:
+          - prospective
+          - active
+          - inactive
+          - closed
+        aggregate_version:
+          type: integer
+          minimum: 1
     AccountPage:
       type: object
       additionalProperties: false
-      required: [items, next_cursor, page_size]
+      required:
+      - items
+      - next_cursor
+      - page_size
       properties:
         items:
           type: array
-          items: { $ref: '#/components/schemas/Account' }
-        next_cursor: { type: [string, 'null'] }
-        page_size: { type: integer, minimum: 1, maximum: 100 }
+          items:
+            $ref: '#/components/schemas/Account'
+        next_cursor:
+          type:
+          - string
+          - 'null'
+        page_size:
+          type: integer
+          minimum: 1
+          maximum: 100
     CreateAccountRequest:
       type: object
       additionalProperties: false
-      required: [account_name, lifecycle_status]
+      required:
+      - account_name
+      - lifecycle_status
       properties:
-        account_name: { type: string, minLength: 1, maxLength: 300 }
-        lifecycle_status: { type: string, enum: [prospective, active] }
+        account_name:
+          type: string
+          minLength: 1
+          maxLength: 300
+        lifecycle_status:
+          type: string
+          enum:
+          - prospective
+          - active
     UpdateAccountRequest:
       type: object
       additionalProperties: false
       minProperties: 1
       properties:
-        account_name: { type: string, minLength: 1, maxLength: 300 }
-        lifecycle_status: { type: string, enum: [prospective, active, inactive, closed] }
+        account_name:
+          type: string
+          minLength: 1
+          maxLength: 300
+        lifecycle_status:
+          type: string
+          enum:
+          - prospective
+          - active
+          - inactive
+          - closed
     RecordRelationshipRequest:
       type: object
       additionalProperties: false
-      required: [relationship_type_version_id, participants, valid_from, truth_status]
+      required:
+      - relationship_type_version_id
+      - participants
+      - valid_from
+      - truth_status
       properties:
-        relationship_type_version_id: { type: string, format: uuid }
+        relationship_type_version_id:
+          type: string
+          format: uuid
         participants:
           type: array
           minItems: 2
@@ -222,54 +357,148 @@ components:
           items:
             type: object
             additionalProperties: false
-            required: [party_id, role_code]
+            required:
+            - party_id
+            - role_code
             properties:
-              party_id: { type: string, format: uuid }
-              role_code: { type: string, pattern: '^[a-z][a-z0-9_]{1,63}$' }
-        valid_from: { type: string, format: date-time }
-        valid_to: { type: [string, 'null'], format: date-time }
-        truth_status: { type: string, enum: [authoritative, observed, inferred, proposed] }
+              party_id:
+                type: string
+                format: uuid
+              role_code:
+                type: string
+                pattern: ^[a-z][a-z0-9_]{1,63}$
+        valid_from:
+          type: string
+          format: date-time
+        valid_to:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        truth_status:
+          type: string
+          enum:
+          - authoritative
+          - observed
+          - inferred
+          - proposed
         evidence_reference_ids:
           type: array
           maxItems: 100
-          items: { type: string, format: uuid }
-        manual_assertion_reason: { type: [string, 'null'], maxLength: 1000 }
+          items:
+            type: string
+            format: uuid
+        manual_assertion_reason:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
       anyOf:
-        - required: [evidence_reference_ids]
-        - required: [manual_assertion_reason]
+      - required:
+        - evidence_reference_ids
+      - required:
+        - manual_assertion_reason
     StageTransitionRequest:
       type: object
       additionalProperties: false
-      required: [target_stage_definition_id, effective_at, reason_code]
+      required:
+      - target_stage_definition_id
+      - effective_at
+      - reason_code
       properties:
-        target_stage_definition_id: { type: string, format: uuid }
-        effective_at: { type: string, format: date-time }
-        reason_code: { type: string, pattern: '^[a-z][a-z0-9_]{1,63}$' }
+        target_stage_definition_id:
+          type: string
+          format: uuid
+        effective_at:
+          type: string
+          format: date-time
+        reason_code:
+          type: string
+          pattern: ^[a-z][a-z0-9_]{1,63}$
         evidence_reference_ids:
           type: array
           maxItems: 100
-          items: { type: string, format: uuid }
+          items:
+            type: string
+            format: uuid
     OperationReceipt:
       type: object
       additionalProperties: false
-      required: [operation_id, aggregate_reference, aggregate_version, recorded_at, event_reference, idempotency_status]
+      required:
+      - operation_id
+      - aggregate_reference
+      - aggregate_version
+      - recorded_at
+      - event_reference
+      - idempotency_status
       properties:
-        operation_id: { type: string, format: uuid }
-        aggregate_reference: { type: string, minLength: 8, maxLength: 500 }
-        aggregate_version: { type: integer, minimum: 1 }
-        recorded_at: { type: string, format: date-time }
-        event_reference: { type: string, minLength: 8, maxLength: 500 }
-        idempotency_status: { type: string, enum: [new, replayed] }
+        operation_id:
+          type: string
+          format: uuid
+        aggregate_reference:
+          type: string
+          minLength: 8
+          maxLength: 500
+        aggregate_version:
+          type: integer
+          minimum: 1
+        recorded_at:
+          type: string
+          format: date-time
+        event_reference:
+          type: string
+          minLength: 8
+          maxLength: 500
+        idempotency_status:
+          type: string
+          enum:
+          - new
+          - replayed
     Problem:
       type: object
       additionalProperties: true
-      required: [type, title, status, error_code, correlation_id]
+      required:
+      - type
+      - title
+      - status
+      - error_code
+      - correlation_id
       properties:
-        type: { type: string, format: uri-reference }
-        title: { type: string }
-        status: { type: integer, minimum: 400, maximum: 599 }
-        detail: { type: string }
-        instance: { type: string, format: uri-reference }
-        error_code: { type: string }
-        correlation_id: { type: string }
-        safe_next_action: { type: [string, 'null'] }
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
+        error_code:
+          type: string
+        correlation_id:
+          type: string
+        safe_next_action:
+          type:
+          - string
+          - 'null'
+  headers:
+    EffectiveValidAt:
+      description: Effective business-valid instant applied by the server.
+      schema:
+        type: string
+        format: date-time
+    EffectiveRecordedAt:
+      description: Effective system-recorded instant applied by the server.
+      schema:
+        type: string
+        format: date-time
+    EffectiveKnowledgeCutoff:
+      description: Effective knowledge cutoff applied by the server.
+      schema:
+        type: string
+        format: date-time

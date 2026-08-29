@@ -16,7 +16,11 @@
 | JSON Schema Draft 2020-12 metaschema validation | Pass |
 | YAML parsing | Pass |
 | OpenAPI version and unique `operationId` structure | Pass |
-| AsyncAPI version, channel, and operation structure | Pass |
+| Narrative/OpenAPI operation parity for the contract-bearing P0 surface | Pass |
+| Temporal query parameters and effective-lens response headers | Pass |
+| AsyncAPI version, channel, producer-operation direction, and message structure | Pass |
+| Required event classification and payload-schema revision metadata | Pass |
+| Explicit bitemporal `recorded_at` in domain-event payloads | Pass |
 | Placeholder-token scan | Pass |
 | Obvious database two-word `snake_case` declaration check | Pass |
 | Manifest SHA-256 verification | Pass after manifest generation |
@@ -34,7 +38,7 @@
 ```text
 Python JSON and JSON Schema validation
 PyYAML parsing
-OpenAPI/AsyncAPI structural checks
+OpenAPI/AsyncAPI structural and cross-contract coherence checks
 Markdown relative-link and fence checks
 Placeholder and naming scans
 SHA-256 manifest generation and verification

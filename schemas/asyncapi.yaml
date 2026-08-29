@@ -16,18 +16,18 @@ channels:
       opportunityStageChanged:
         $ref: '#/components/messages/OpportunityStageChanged'
 operations:
-  consumeRelationshipChanged:
-    action: receive
+  publishRelationshipChanged:
+    action: send
     channel:
       $ref: '#/channels/relationshipChanged'
     messages:
-      - $ref: '#/channels/relationshipChanged/messages/relationshipChanged'
-  consumeOpportunityStageChanged:
-    action: receive
+    - $ref: '#/channels/relationshipChanged/messages/relationshipChanged'
+  publishOpportunityStageChanged:
+    action: send
     channel:
       $ref: '#/channels/opportunityStageChanged'
     messages:
-      - $ref: '#/channels/opportunityStageChanged/messages/opportunityStageChanged'
+    - $ref: '#/channels/opportunityStageChanged/messages/opportunityStageChanged'
 components:
   messages:
     RelationshipChanged:
@@ -35,41 +35,91 @@ components:
       title: Relationship changed CloudEvent
       payload:
         allOf:
-          - $ref: '#/components/schemas/CloudEventEnvelope'
-          - type: object
-            properties:
-              type:
-                const: org.contextualwisdomlab.elunvera.relationship.changed.v1
-              data:
-                $ref: './events/relationship-changed-v1.schema.json'
+        - $ref: '#/components/schemas/CloudEventEnvelope'
+        - type: object
+          properties:
+            type:
+              const: org.contextualwisdomlab.elunvera.relationship.changed.v1
+            data:
+              $ref: ./events/relationship-changed-v1.schema.json
     OpportunityStageChanged:
       name: OpportunityStageChanged
       title: Opportunity stage changed CloudEvent
       payload:
         allOf:
-          - $ref: '#/components/schemas/CloudEventEnvelope'
-          - type: object
-            properties:
-              type:
-                const: org.contextualwisdomlab.elunvera.opportunity.stage_changed.v1
-              data:
-                $ref: './events/opportunity-stage-changed-v1.schema.json'
+        - $ref: '#/components/schemas/CloudEventEnvelope'
+        - type: object
+          properties:
+            type:
+              const: org.contextualwisdomlab.elunvera.opportunity.stage_changed.v1
+            data:
+              $ref: ./events/opportunity-stage-changed-v1.schema.json
   schemas:
     CloudEventEnvelope:
       type: object
       additionalProperties: true
-      required: [specversion, id, source, type, subject, time, datacontenttype, tenantref, correlationid, purposecode, data]
+      required:
+      - specversion
+      - id
+      - source
+      - type
+      - subject
+      - time
+      - datacontenttype
+      - tenantref
+      - correlationid
+      - purposecode
+      - dataclassification
+      - schemarevision
+      - data
       properties:
-        specversion: { const: '1.0' }
-        id: { type: string, format: uuid }
-        source: { type: string, format: uri-reference }
-        type: { type: string }
-        subject: { type: string, format: uri-reference }
-        time: { type: string, format: date-time }
-        datacontenttype: { const: application/json }
-        tenantref: { type: string, minLength: 8, maxLength: 500 }
-        correlationid: { type: string, minLength: 8, maxLength: 128 }
-        causationid: { type: [string, 'null'], maxLength: 128 }
-        provenanceref: { type: [string, 'null'], maxLength: 500 }
-        purposecode: { type: string, pattern: '^[a-z][a-z0-9_]{1,63}$' }
-        data: { type: object }
+        specversion:
+          const: '1.0'
+        id:
+          type: string
+          format: uuid
+        source:
+          type: string
+          format: uri-reference
+        type:
+          type: string
+        subject:
+          type: string
+          format: uri-reference
+        time:
+          type: string
+          format: date-time
+          description: CloudEvent publication time; not a substitute for payload recorded_at.
+        datacontenttype:
+          const: application/json
+        tenantref:
+          type: string
+          minLength: 8
+          maxLength: 500
+        correlationid:
+          type: string
+          minLength: 8
+          maxLength: 128
+        causationid:
+          type:
+          - string
+          - 'null'
+          maxLength: 128
+        provenanceref:
+          type:
+          - string
+          - 'null'
+          maxLength: 500
+        purposecode:
+          type: string
+          pattern: ^[a-z][a-z0-9_]{1,63}$
+        data:
+          type: object
+        dataclassification:
+          type: string
+          pattern: ^[a-z][a-z0-9_]{1,63}$
+          description: Minimum handling classification for the complete event.
+        schemarevision:
+          type: string
+          pattern: ^[1-9][0-9]*\.[0-9]+\.[0-9]+$
+          description: Semantic version of the payload schema revision.

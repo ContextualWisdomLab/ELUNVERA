@@ -113,91 +113,24 @@ Every non-success response uses RFC 9457 fields and ELUNVERA extensions:
 
 Messages help the user take the next action and never expose SQL, internal service names, stack traces, secrets, or cross-tenant existence.
 
-## 6. Resource endpoints
+## 6. Contract-bearing P0 endpoints
 
-The initial contract surface is deliberately narrow.
-
-### Accounts
+The authoritative P0 HTTP surface is exactly the set of operations present in `schemas/openapi.yaml`:
 
 ```text
+GET    /v1/accounts
 POST   /v1/accounts
 GET    /v1/accounts/{account_id}
 PATCH  /v1/accounts/{account_id}
-GET    /v1/accounts
-GET    /v1/accounts/{account_id}/timeline
-GET    /v1/accounts/{account_id}/relationships
-POST   /v1/accounts/{account_id}/merge-jobs
-POST   /v1/accounts/{account_id}/split-jobs
-```
-
-### Parties and relationships
-
-```text
-POST   /v1/parties
-GET    /v1/parties/{party_id}
-PATCH  /v1/parties/{party_id}
 POST   /v1/relationships
-GET    /v1/relationships/{relationship_id}
-PATCH  /v1/relationships/{relationship_id}
-POST   /v1/relationships/{relationship_id}/review-decisions
-```
-
-### Interactions and commitments
-
-```text
-POST   /v1/interactions
-GET    /v1/interactions/{interaction_id}
-POST   /v1/commitments
-PATCH  /v1/commitments/{commitment_id}
-POST   /v1/commitments/{commitment_id}/transitions
-```
-
-### Opportunities
-
-```text
-POST   /v1/opportunities
-GET    /v1/opportunities/{opportunity_id}
-PATCH  /v1/opportunities/{opportunity_id}
 POST   /v1/opportunities/{opportunity_id}/stage-transitions
-POST   /v1/opportunities/{opportunity_id}/value-snapshots
-POST   /v1/opportunities/{opportunity_id}/forecast-snapshots
 ```
 
-### Customer outcomes and complaints
+The two account read operations accept the contract-defined `valid_at`, `recorded_at`, and `knowledge_cutoff` parameters and echo the effective temporal lens in response headers. Mutations require `X-Correlation-Id` and `Idempotency-Key`; updates to an existing aggregate also require `If-Match`.
 
-```text
-POST   /v1/customer-outcomes
-GET    /v1/customer-outcomes/{outcome_id}
-POST   /v1/complaints
-GET    /v1/complaints/{complaint_id}
-POST   /v1/complaints/{complaint_id}/transitions
-POST   /v1/satisfaction-observations
-```
+Parties, interactions, commitments, relationship review, account merge/split, customer outcomes, complaints, satisfaction observations, search, model jobs, privacy cases, disposition, legal hold, and audit-query operations remain product-roadmap candidates. They are **not** HTTP contract commitments until their operations and schemas are added to `schemas/openapi.yaml`, validated, and versioned.
 
-### Search and proposed intelligence
-
-```text
-POST   /v1/search-queries
-POST   /v1/context-bundles
-POST   /v1/model-jobs
-GET    /v1/model-jobs/{job_id}
-POST   /v1/model-claims/{claim_id}/review-decisions
-```
-
-Model endpoints return evidence references, uncertainty, model identity, prompt hash, and review status. A model claim cannot mutate authoritative CRM facts.
-
-### Privacy and audit
-
-```text
-POST   /v1/data-rights-cases
-GET    /v1/data-rights-cases/{case_id}
-POST   /v1/data-rights-cases/{case_id}/exports
-POST   /v1/disposition-jobs
-POST   /v1/legal-holds
-GET    /v1/audit-events
-```
-
-Audit search is purpose-restricted and paginated. Export manifests identify included and excluded fields, source authority, and policy reason.
+Model-related future operations must return evidence references, uncertainty, model identity, prompt hash, and review status. A model claim can never mutate authoritative CRM facts without an explicit human-reviewed command.
 
 ## 7. Command receipts
 
@@ -234,11 +167,17 @@ Domain events include the CloudEvents core fields plus bounded extensions:
   "causationid": "019d...",
   "provenanceref": "urn:elunvera:evidence:019d...",
   "purposecode": "account_management",
-  "data": {}
+  "dataclassification": "restricted_personal_and_commercial",
+  "schemarevision": "1.0.0",
+  "data": {
+    "recorded_at": "2026-08-27T08:59:58Z"
+  }
 }
 ```
 
 Events never contain passwords, tokens, raw email bodies, unrestricted notes, unnecessary contact details, or provider secrets.
+
+`time` is the CloudEvent publication time. Payloads that carry bitemporal facts include an explicit immutable `recorded_at`, because an outbox or broker delay can make publication time later than the system-recorded time. The internal metadata names `data_classification` and `schema_revision` serialize as the CloudEvents extension attributes `dataclassification` and `schemarevision`.
 
 ## 9. Initial event types
 
