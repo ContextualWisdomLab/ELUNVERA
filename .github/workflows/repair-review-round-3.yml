@@ -1,0 +1,183 @@
+name: repair remaining contract review findings
+
+on:
+  push:
+    branches:
+      - docs/product-technical-baseline
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: elunvera-review-round-3-repair
+  cancel-in-progress: false
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact feature branch
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # actions/checkout@v7
+        with:
+          ref: docs/product-technical-baseline
+          fetch-depth: 0
+
+      - name: Verify bounded preimage
+        shell: bash
+        env:
+          EXPECTED_PARENT: bc7e86c4f2e6c01479191575beb3a4ad8d9687cf
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = "$EXPECTED_PARENT"
+
+      - name: Apply review repairs and refresh durable evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          openapi_path = Path('schemas/openapi.yaml')
+          openapi = openapi_path.read_text(encoding='utf-8')
+          start = openapi.index('    RecordRelationshipRequest:\n')
+          end = openapi.index('    StageTransitionRequest:\n')
+          prefix, relationship, suffix = openapi[:start], openapi[start:end], openapi[end:]
+          inferred = '          - inferred\n'
+          assert relationship.count(inferred) == 1
+          relationship = relationship.replace(inferred, '')
+          evidence = '''        evidence_reference_ids:
+          type: array
+          maxItems: 100
+'''
+          bounded_evidence = '''        evidence_reference_ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+'''
+          assert relationship.count(evidence) == 1
+          relationship = relationship.replace(evidence, bounded_evidence)
+          openapi_path.write_text(prefix + relationship + suffix, encoding='utf-8')
+
+          validation_path = Path('docs/VALIDATION_REPORT.md')
+          validation = validation_path.read_text(encoding='utf-8')
+          replacements = {
+              '- **Validation date:** 2026-08-27': '- **Validation date:** 2026-08-29',
+              '| JSON Schema Draft 2020-12 metaschema validation | Pass |': '| JSON Schema Draft 2020-12 declaration and structural invariant validation | Pass |',
+              '- Repository files excluding `.git`: **55**': '- Tracked repository files including `manifest.json`: **56**',
+              '- Manifest entries excluding `manifest.json`: **54**': '- Manifest entries excluding `manifest.json`: **55**',
+              'Python JSON and JSON Schema validation': 'Python JSON parsing and Draft 2020-12 declaration/invariant validation',
+          }
+          for old, new in replacements.items():
+              assert old in validation, old
+              validation = validation.replace(old, new, 1)
+          validation_path.write_text(validation, encoding='utf-8')
+
+          changelog_path = Path('CHANGELOG.md')
+          changelog = changelog_path.read_text(encoding='utf-8')
+          marker = '- Added explicit `recorded_at` payload fields so outbox publication delay cannot corrupt bitemporal reconstruction.\n'
+          additions = marker + '- Restricted the P0 manual relationship command from accepting `inferred` truth without inference provenance and confidence.\n- Corrected documentation inventory counts and aligned validation claims with the permanent exact-head workflow.\n'
+          assert changelog.count(marker) == 1
+          changelog_path.write_text(changelog.replace(marker, additions, 1), encoding='utf-8')
+
+          workflow_path = Path('.github/workflows/document-contracts.yml')
+          workflow = workflow_path.read_text(encoding='utf-8')
+          ruby_marker = "          raise 'duplicate operationId' unless operations.map(&:last).uniq.length == operations.length\n\n"
+          ruby_addition = ruby_marker + '''          relationship = openapi.fetch('components').fetch('schemas').fetch('RecordRelationshipRequest')
+          truth_statuses = relationship.fetch('properties').fetch('truth_status').fetch('enum')
+          raise 'P0 manual relationship command must not accept inferred truth' if truth_statuses.include?('inferred')
+          evidence = relationship.fetch('properties').fetch('evidence_reference_ids')
+          raise 'evidence_reference_ids must reject empty arrays' unless evidence.fetch('minItems').to_i >= 1
+
+'''
+          assert workflow.count(ruby_marker) == 1
+          workflow = workflow.replace(ruby_marker, ruby_addition, 1)
+          python_marker = "          assert set(entries) == tracked\n"
+          python_addition = python_marker + '''
+          report = Path('docs/VALIDATION_REPORT.md').read_text(encoding='utf-8')
+          assert '- Tracked repository files including `manifest.json`: **56**' in report
+          assert '- Manifest entries excluding `manifest.json`: **55**' in report
+          assert 'Draft 2020-12 declaration and structural invariant validation' in report
+'''
+          assert workflow.count(python_marker) == 1
+          workflow_path.write_text(workflow.replace(python_marker, python_addition, 1), encoding='utf-8')
+
+          Path('.github/workflows/repair-review-round-3.yml').unlink()
+
+          manifest_path = Path('manifest.json')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          tracked = []
+          for path in sorted(Path('.').rglob('*')):
+              if not path.is_file() or '.git' in path.parts or path == manifest_path:
+                  continue
+              payload = path.read_bytes()
+              tracked.append({
+                  'path': path.as_posix(),
+                  'sha256': hashlib.sha256(payload).hexdigest(),
+                  'size_bytes': len(payload),
+                  'line_count': len(payload.decode('utf-8').splitlines()),
+              })
+          manifest['generated_at'] = '2026-08-29T00:00:00Z'
+          manifest['file_count'] = len(tracked)
+          manifest['files'] = tracked
+          assert len(tracked) == 55
+          manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+          PY
+
+      - name: Validate repaired exact tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruby -ryaml - <<'RUBY'
+          openapi = YAML.safe_load(File.read('schemas/openapi.yaml'), aliases: false)
+          relationship = openapi.fetch('components').fetch('schemas').fetch('RecordRelationshipRequest')
+          truth_statuses = relationship.fetch('properties').fetch('truth_status').fetch('enum')
+          raise 'inferred truth remains accepted' if truth_statuses.include?('inferred')
+          evidence = relationship.fetch('properties').fetch('evidence_reference_ids')
+          raise 'empty evidence array remains accepted' unless evidence.fetch('minItems').to_i >= 1
+          YAML.safe_load(File.read('.github/workflows/document-contracts.yml'), aliases: false)
+          RUBY
+
+          python3 <<'PY'
+          import hashlib
+          import json
+          import subprocess
+          from pathlib import Path
+
+          report = Path('docs/VALIDATION_REPORT.md').read_text(encoding='utf-8')
+          assert '- Tracked repository files including `manifest.json`: **56**' in report
+          assert '- Manifest entries excluding `manifest.json`: **55**' in report
+          assert 'Draft 2020-12 declaration and structural invariant validation' in report
+          assert 'metaschema validation' not in report
+
+          manifest = json.loads(Path('manifest.json').read_text(encoding='utf-8'))
+          files = [path for path in Path('.').rglob('*') if path.is_file() and '.git' not in path.parts]
+          assert len(files) == 56
+          entries = {entry['path']: entry for entry in manifest['files']}
+          assert manifest['file_count'] == len(entries) == 55
+          for path_text, entry in entries.items():
+              payload = Path(path_text).read_bytes()
+              assert hashlib.sha256(payload).hexdigest() == entry['sha256'], path_text
+              assert len(payload) == entry['size_bytes'], path_text
+              assert len(payload.decode('utf-8').splitlines()) == entry['line_count'], path_text
+          for event_path in Path('schemas/events').glob('*.json'):
+              schema = json.loads(event_path.read_text(encoding='utf-8'))
+              assert schema['$schema'] == 'https://json-schema.org/draft/2020-12/schema'
+              assert schema['additionalProperties'] is False
+          PY
+          git diff --check
+
+      - name: Commit verified review repairs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "fix: close remaining contract review findings"
+          git push origin HEAD:docs/product-technical-baseline
