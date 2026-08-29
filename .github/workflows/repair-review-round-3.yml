@@ -27,11 +27,10 @@ jobs:
 
       - name: Verify bounded preimage
         shell: bash
-        env:
-          EXPECTED_PARENT: bc7e86c4f2e6c01479191575beb3a4ad8d9687cf
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "$EXPECTED_PARENT"
+          test "$(git rev-parse HEAD^)" = "b0dcb301c8fc71add7959e2926842c30a465c738"
+          test "$(git rev-parse HEAD^^)" = "bc7e86c4f2e6c01479191575beb3a4ad8d9687cf"
 
       - name: Apply review repairs and refresh durable evidence
         shell: bash
@@ -50,15 +49,8 @@ jobs:
           inferred = '          - inferred\n'
           assert relationship.count(inferred) == 1
           relationship = relationship.replace(inferred, '')
-          evidence = '''        evidence_reference_ids:
-          type: array
-          maxItems: 100
-'''
-          bounded_evidence = '''        evidence_reference_ids:
-          type: array
-          minItems: 1
-          maxItems: 100
-'''
+          evidence = '        evidence_reference_ids:\n          type: array\n          maxItems: 100\n'
+          bounded_evidence = '        evidence_reference_ids:\n          type: array\n          minItems: 1\n          maxItems: 100\n'
           assert relationship.count(evidence) == 1
           relationship = relationship.replace(evidence, bounded_evidence)
           openapi_path.write_text(prefix + relationship + suffix, encoding='utf-8')
@@ -80,31 +72,35 @@ jobs:
           changelog_path = Path('CHANGELOG.md')
           changelog = changelog_path.read_text(encoding='utf-8')
           marker = '- Added explicit `recorded_at` payload fields so outbox publication delay cannot corrupt bitemporal reconstruction.\n'
-          additions = marker + '- Restricted the P0 manual relationship command from accepting `inferred` truth without inference provenance and confidence.\n- Corrected documentation inventory counts and aligned validation claims with the permanent exact-head workflow.\n'
+          extra = (
+              '- Restricted the P0 manual relationship command from accepting `inferred` truth without inference provenance and confidence.\n'
+              '- Corrected documentation inventory counts and aligned validation claims with the permanent exact-head workflow.\n'
+          )
           assert changelog.count(marker) == 1
-          changelog_path.write_text(changelog.replace(marker, additions, 1), encoding='utf-8')
+          changelog_path.write_text(changelog.replace(marker, marker + extra, 1), encoding='utf-8')
 
           workflow_path = Path('.github/workflows/document-contracts.yml')
           workflow = workflow_path.read_text(encoding='utf-8')
           ruby_marker = "          raise 'duplicate operationId' unless operations.map(&:last).uniq.length == operations.length\n\n"
-          ruby_addition = ruby_marker + '''          relationship = openapi.fetch('components').fetch('schemas').fetch('RecordRelationshipRequest')
-          truth_statuses = relationship.fetch('properties').fetch('truth_status').fetch('enum')
-          raise 'P0 manual relationship command must not accept inferred truth' if truth_statuses.include?('inferred')
-          evidence = relationship.fetch('properties').fetch('evidence_reference_ids')
-          raise 'evidence_reference_ids must reject empty arrays' unless evidence.fetch('minItems').to_i >= 1
-
-'''
+          ruby_lines = [
+              "          relationship = openapi.fetch('components').fetch('schemas').fetch('RecordRelationshipRequest')\n",
+              "          truth_statuses = relationship.fetch('properties').fetch('truth_status').fetch('enum')\n",
+              "          raise 'P0 manual relationship command must not accept inferred truth' if truth_statuses.include?('inferred')\n",
+              "          evidence = relationship.fetch('properties').fetch('evidence_reference_ids')\n",
+              "          raise 'evidence_reference_ids must reject empty arrays' unless evidence.fetch('minItems').to_i >= 1\n\n",
+          ]
           assert workflow.count(ruby_marker) == 1
-          workflow = workflow.replace(ruby_marker, ruby_addition, 1)
+          workflow = workflow.replace(ruby_marker, ruby_marker + ''.join(ruby_lines), 1)
           python_marker = "          assert set(entries) == tracked\n"
-          python_addition = python_marker + '''
-          report = Path('docs/VALIDATION_REPORT.md').read_text(encoding='utf-8')
-          assert '- Tracked repository files including `manifest.json`: **56**' in report
-          assert '- Manifest entries excluding `manifest.json`: **55**' in report
-          assert 'Draft 2020-12 declaration and structural invariant validation' in report
-'''
+          python_lines = [
+              "\n",
+              "          report = Path('docs/VALIDATION_REPORT.md').read_text(encoding='utf-8')\n",
+              "          assert '- Tracked repository files including `manifest.json`: **56**' in report\n",
+              "          assert '- Manifest entries excluding `manifest.json`: **55**' in report\n",
+              "          assert 'Draft 2020-12 declaration and structural invariant validation' in report\n",
+          ]
           assert workflow.count(python_marker) == 1
-          workflow_path.write_text(workflow.replace(python_marker, python_addition, 1), encoding='utf-8')
+          workflow_path.write_text(workflow.replace(python_marker, python_marker + ''.join(python_lines), 1), encoding='utf-8')
 
           Path('.github/workflows/repair-review-round-3.yml').unlink()
 
@@ -145,7 +141,6 @@ jobs:
           python3 <<'PY'
           import hashlib
           import json
-          import subprocess
           from pathlib import Path
 
           report = Path('docs/VALIDATION_REPORT.md').read_text(encoding='utf-8')
