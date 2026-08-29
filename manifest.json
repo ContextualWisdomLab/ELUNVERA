@@ -308,9 +308,9 @@
     },
     {
       "path": "schemas/asyncapi.yaml",
-      "sha256": "6114f1df68a25182dd454903a77e8da343f0c343ca51d0162163a87f56c4fb42",
-      "size_bytes": 3572,
-      "line_count": 125
+      "sha256": "b973b10d1db3c003df97bcc0d25676bdccfa1238c04f70188e8f54cc9a117a4c",
+      "size_bytes": 3682,
+      "line_count": 126
     },
     {
       "path": "schemas/events/opportunity-stage-changed-v1.schema.json",
