@@ -29,8 +29,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "b0dcb301c8fc71add7959e2926842c30a465c738"
-          test "$(git rev-parse HEAD^^)" = "bc7e86c4f2e6c01479191575beb3a4ad8d9687cf"
+          test "$(git rev-parse HEAD^)" = "41b7dd497b21e3a7777fdef51cecd3816c6fb5d4"
+          test "$(git rev-parse HEAD^^)" = "b0dcb301c8fc71add7959e2926842c30a465c738"
 
       - name: Apply review repairs and refresh durable evidence
         shell: bash
@@ -172,7 +172,10 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git status --short
           git add -A
-          git diff --cached --check
+          git status --short
+          git diff --cached --stat
+          test -n "$(git diff --cached --name-only)"
           git commit -m "fix: close remaining contract review findings"
           git push origin HEAD:docs/product-technical-baseline
