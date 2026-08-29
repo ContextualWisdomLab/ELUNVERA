@@ -1,0 +1,160 @@
+name: document-contracts
+
+on:
+  pull_request:
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: document-contracts-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Verify exact checkout
+        env:
+          EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+
+      - name: Validate document and schema contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ruby -ryaml - <<'RUBY'
+          methods = %w[get post put patch delete options head trace]
+          openapi = YAML.safe_load(File.read('schemas/openapi.yaml'), aliases: false)
+          raise 'OpenAPI version mismatch' unless openapi['openapi'] == '3.2.0'
+          operations = []
+          openapi.fetch('paths').each do |path, item|
+            item.each do |method, operation|
+              next unless methods.include?(method)
+              operations << [method.upcase, "/v1#{path}", operation.fetch('operationId')]
+            end
+          end
+          expected = [
+            ['GET', '/v1/accounts'],
+            ['POST', '/v1/accounts'],
+            ['GET', '/v1/accounts/{account_id}'],
+            ['PATCH', '/v1/accounts/{account_id}'],
+            ['POST', '/v1/relationships'],
+            ['POST', '/v1/opportunities/{opportunity_id}/stage-transitions']
+          ].sort
+          raise 'OpenAPI P0 operation mismatch' unless operations.map { |method, path, _| [method, path] }.sort == expected
+          raise 'duplicate operationId' unless operations.map(&:last).uniq.length == operations.length
+
+          ['/accounts', '/accounts/{account_id}'].each do |path|
+            operation = openapi.fetch('paths').fetch(path).fetch('get')
+            refs = operation.fetch('parameters').filter_map { |parameter| parameter['$ref'] }
+            %w[ValidAt RecordedAt KnowledgeCutoff].each do |name|
+              raise "missing temporal parameter #{name}" unless refs.include?("#/components/parameters/#{name}")
+            end
+            headers = operation.fetch('responses').fetch('200').fetch('headers')
+            %w[X-ELUNVERA-Valid-At X-ELUNVERA-Recorded-At X-ELUNVERA-Knowledge-Cutoff].each do |name|
+              raise "missing temporal response header #{name}" unless headers.key?(name)
+            end
+          end
+
+          asyncapi = YAML.safe_load(File.read('schemas/asyncapi.yaml'), aliases: false)
+          raise 'AsyncAPI version mismatch' unless asyncapi['asyncapi'] == '3.1.0'
+          raise 'event producer direction mismatch' unless asyncapi.fetch('operations').values.all? { |operation| operation['action'] == 'send' }
+          envelope = asyncapi.fetch('components').fetch('schemas').fetch('CloudEventEnvelope')
+          %w[dataclassification schemarevision provenanceref].each do |name|
+            raise "missing required event metadata #{name}" unless envelope.fetch('required').include?(name)
+          end
+          provenance = envelope.fetch('properties').fetch('provenanceref')
+          raise 'provenance must be a non-null string' unless provenance['type'] == 'string'
+          raise 'provenance must reject empty values' unless provenance['minLength'].to_i >= 1
+          RUBY
+
+          python - <<'PY'
+          import hashlib
+          import json
+          import re
+          import subprocess
+          from pathlib import Path
+          from urllib.parse import unquote
+
+          required = {
+              Path('docs/PRD.md'),
+              Path('docs/TRD.md'),
+              Path('docs/ARCHITECTURE.md'),
+              Path('docs/DATA_MODEL.md'),
+              Path('docs/API_CONTRACT.md'),
+              Path('docs/product-technical-gap-baseline.md'),
+              Path('docs/adr/README.md'),
+              Path('schemas/openapi.yaml'),
+              Path('schemas/asyncapi.yaml'),
+          }
+          missing = sorted(str(path) for path in required if not path.is_file())
+          assert not missing, missing
+
+          for event_path in (
+              Path('schemas/events/relationship-changed-v1.schema.json'),
+              Path('schemas/events/opportunity-stage-changed-v1.schema.json'),
+          ):
+              schema = json.loads(event_path.read_text(encoding='utf-8'))
+              assert schema['$schema'] == 'https://json-schema.org/draft/2020-12/schema'
+              assert schema['additionalProperties'] is False
+              assert 'recorded_at' in schema['required']
+              assert schema['properties']['recorded_at']['format'] == 'date-time'
+
+          manifest = json.loads(Path('manifest.json').read_text(encoding='utf-8'))
+          tracked = {
+              path
+              for path in subprocess.check_output(
+                  ['git', 'ls-files'], text=True
+              ).splitlines()
+              if path != 'manifest.json'
+          }
+          entries = {entry['path']: entry for entry in manifest['files']}
+          assert manifest['self_excluded'] is True
+          assert manifest['file_count'] == len(entries) == len(tracked)
+          assert set(entries) == tracked
+          for path_text, entry in entries.items():
+              path = Path(path_text)
+              payload = path.read_bytes()
+              assert hashlib.sha256(payload).hexdigest() == entry['sha256'], path
+              assert len(payload) == entry['size_bytes'], path
+              assert len(payload.decode('utf-8').splitlines()) == entry['line_count'], path
+
+          link_pattern = re.compile(r'(?<!!)\[[^\]]*\]\(([^)]+)\)')
+          for markdown_path in sorted(Path('.').rglob('*.md')):
+              in_fence = False
+              fence_count = 0
+              for line_number, line in enumerate(markdown_path.read_text(encoding='utf-8').splitlines(), 1):
+                  if line.lstrip().startswith('```'):
+                      in_fence = not in_fence
+                      fence_count += 1
+                      continue
+                  if in_fence:
+                      continue
+                  for raw_target in link_pattern.findall(line):
+                      target = raw_target.strip().split(' ', 1)[0].strip('<>')
+                      if target.startswith(('http://', 'https://', 'mailto:', '#')):
+                          continue
+                      target = unquote(target.split('#', 1)[0])
+                      if not target:
+                          continue
+                      resolved = (markdown_path.parent / target).resolve()
+                      assert resolved.exists(), f'{markdown_path}:{line_number}: {target}'
+              assert fence_count % 2 == 0, f'unbalanced code fence: {markdown_path}'
+          PY
+
+          git diff --check
