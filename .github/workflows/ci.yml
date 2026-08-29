@@ -2,24 +2,57 @@ name: product-ci
 
 on:
   pull_request:
+    branches: [main, develop]
   push:
-    branches: [main]
+    branches: [main, develop]
 
 permissions:
   contents: read
+
+concurrency:
+  group: product-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   activation-queue:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out exact revision
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # actions/setup-python@v6
         with:
           python-version: "3.12"
-      - name: Install pytest
-        run: python -m pip install pytest
-      - name: Test activation queue
-        run: python -m pytest -q
-      - name: Compile serve script
+
+      - name: Install pinned Python test dependencies
+        env:
+          PIP_DISABLE_PIP_VERSION_CHECK: "1"
+        run: python -m pip install --no-input -r requirements-dev.txt
+
+      - name: Run Python tests with complete production coverage
+        run: |
+          python -m coverage run --branch -m pytest -q
+          python -m coverage report \
+            --include='src/elunvera/*,scripts/serve.py' \
+            --fail-under=100
+
+      - name: Compile Python entry points
         run: python -m py_compile scripts/serve.py src/elunvera/queue.py
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # actions/setup-node@v5
+        with:
+          node-version: "24"
+
+      - name: Run browser tests with complete production coverage
+        run: >-
+          node --test --experimental-test-coverage
+          --test-coverage-include='web/*.js'
+          --test-coverage-lines=100
+          --test-coverage-branches=100
+          --test-coverage-functions=100
+          tests/test_app.mjs

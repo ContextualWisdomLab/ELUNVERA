@@ -1,0 +1,204 @@
+"""HTTP boundary tests for the activation queue."""
+
+from __future__ import annotations
+
+import http.client
+import json
+import runpy
+import socket
+import sys
+import threading
+import types
+from collections.abc import Iterator
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from scripts import serve
+
+
+@pytest.fixture
+def http_server(monkeypatch: pytest.MonkeyPatch) -> Iterator[tuple[str, int]]:
+    monkeypatch.setattr(serve, "QUEUE", serve.ActivationQueue(serve.SEED["relationships"]))
+    server = ThreadingHTTPServer(("127.0.0.1", 0), serve.Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        host, port = server.server_address
+        yield str(host), int(port)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def request(
+    host: str,
+    port: int,
+    method: str,
+    path: str,
+    *,
+    body: bytes | None = None,
+    headers: dict[str, str] | None = None,
+) -> tuple[int, dict[str, str], bytes]:
+    connection = http.client.HTTPConnection(host, port, timeout=2)
+    try:
+        connection.request(method, path, body=body, headers=headers or {})
+        response = connection.getresponse()
+        return response.status, dict(response.getheaders()), response.read()
+    finally:
+        connection.close()
+
+
+def post_raw(host: str, port: int, content_length: str, body: bytes) -> tuple[int, dict[str, str]]:
+    raw_request = (
+        "POST /api/queue/rel-001 HTTP/1.1\r\n"
+        f"Host: {host}:{port}\r\n"
+        "Content-Type: application/json\r\n"
+        f"Content-Length: {content_length}\r\n"
+        "Connection: close\r\n"
+        "\r\n"
+    ).encode("ascii") + body
+    with socket.create_connection((host, port), timeout=2) as connection:
+        connection.sendall(raw_request)
+        connection.shutdown(socket.SHUT_WR)
+        response = bytearray()
+        while chunk := connection.recv(65536):
+            response.extend(chunk)
+    head, payload = bytes(response).split(b"\r\n\r\n", 1)
+    status = int(head.splitlines()[0].split()[1])
+    return status, json.loads(payload.decode("utf-8"))
+
+
+def test_get_home_serves_html_without_cache(http_server: tuple[str, int]) -> None:
+    status, headers, body = request(*http_server, "GET", "/")
+    assert status == 200
+    assert headers["Cache-Control"] == "no-store"
+    assert headers["Content-Type"] == "text/html; charset=utf-8"
+    assert b"ELUNVERA" in body
+    assert b'type="module" src="/web/bootstrap.js"' in body
+
+
+def test_get_index_alias_serves_html(http_server: tuple[str, int]) -> None:
+    status, _, body = request(*http_server, "GET", "/index.html")
+    assert status == 200
+    assert b"Activation queue" in body
+
+
+def test_get_queue_returns_relationships(http_server: tuple[str, int]) -> None:
+    status, headers, body = request(*http_server, "GET", "/api/queue")
+    assert status == 200
+    assert headers["Content-Type"] == "application/json; charset=utf-8"
+    payload = json.loads(body)
+    assert payload["relationships"][0]["id"] == "rel-003"
+
+
+def test_unknown_get_delegates_to_static_handler(http_server: tuple[str, int]) -> None:
+    status, _, _ = request(*http_server, "GET", "/does-not-exist")
+    assert status == 404
+
+
+def test_unknown_post_path_returns_404(http_server: tuple[str, int]) -> None:
+    status, _, _ = request(*http_server, "POST", "/api/not-queue", body=b"{}")
+    assert status == 404
+
+
+def test_post_applies_valid_action(http_server: tuple[str, int]) -> None:
+    body = json.dumps({"action": "activate"}).encode("utf-8")
+    status, headers, payload = request(
+        *http_server,
+        "POST",
+        "/api/queue/rel-001",
+        body=body,
+        headers={"Content-Type": "application/json"},
+    )
+    assert status == 200
+    assert headers["Cache-Control"] == "no-store"
+    assert json.loads(payload)["status"] == "activated"
+
+
+def test_post_returns_json_for_domain_error(http_server: tuple[str, int]) -> None:
+    body = json.dumps({"action": "activate"}).encode("utf-8")
+    status, _, payload = request(
+        *http_server,
+        "POST",
+        "/api/queue/rel-missing",
+        body=body,
+        headers={"Content-Type": "application/json"},
+    )
+    assert status == 400
+    assert "unknown relationship" in json.loads(payload)["error"]
+
+
+def test_post_with_empty_body_returns_json_error(http_server: tuple[str, int]) -> None:
+    status, _, payload = request(*http_server, "POST", "/api/queue/rel-001", body=b"")
+    assert status == 400
+    assert "unknown action" in json.loads(payload)["error"]
+
+
+@pytest.mark.parametrize(
+    ("content_length", "body"),
+    [
+        ("not-an-integer", b"{}"),
+        ("-1", b""),
+        (str(serve.MAX_REQUEST_BODY_BYTES + 1), b"{}"),
+    ],
+)
+def test_post_rejects_invalid_content_length_as_json(
+    http_server: tuple[str, int], content_length: str, body: bytes
+) -> None:
+    status, payload = post_raw(*http_server, content_length, body)
+    assert status == 400
+    assert "Content-Length" in payload["error"]
+
+
+@pytest.mark.parametrize("body", [b"{", b"[]", b'"text"', b"\xff"])
+def test_post_rejects_invalid_or_non_object_json(
+    http_server: tuple[str, int], body: bytes
+) -> None:
+    status, payload = post_raw(*http_server, str(len(body)), body)
+    assert status == 400
+    assert payload == {"error": "request body must be a valid JSON object"}
+
+
+def test_main_constructs_loopback_server_and_serves(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    observed: dict[str, Any] = {}
+
+    class FakeServer:
+        def __init__(self, address: tuple[str, int], handler: type[serve.Handler]) -> None:
+            observed["address"] = address
+            observed["handler"] = handler
+
+        def serve_forever(self) -> None:
+            observed["served"] = True
+
+    monkeypatch.setattr(serve, "ThreadingHTTPServer", FakeServer)
+    serve.main()
+    assert observed == {
+        "address": ("127.0.0.1", 8765),
+        "handler": serve.Handler,
+        "served": True,
+    }
+    assert "http://127.0.0.1:8765/" in capsys.readouterr().out
+
+
+def test_module_entrypoint_calls_main(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, Any] = {}
+
+    class FakeServer:
+        def __init__(self, address: tuple[str, int], handler: type[SimpleHTTPRequestHandler]) -> None:
+            observed["address"] = address
+            observed["handler"] = handler
+
+        def serve_forever(self) -> None:
+            observed["served"] = True
+
+    fake_http_server = types.ModuleType("http.server")
+    fake_http_server.SimpleHTTPRequestHandler = SimpleHTTPRequestHandler
+    fake_http_server.ThreadingHTTPServer = FakeServer
+    monkeypatch.setitem(sys.modules, "http.server", fake_http_server)
+    runpy.run_path(str(Path(serve.__file__)), run_name="__main__")
+    assert observed["address"] == ("127.0.0.1", 8765)
+    assert observed["served"] is True

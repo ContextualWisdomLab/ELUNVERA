@@ -17,16 +17,23 @@ from elunvera import ActivationQueue  # noqa: E402
 
 SEED = json.loads((ROOT / "data" / "activations.json").read_text(encoding="utf-8"))
 QUEUE = ActivationQueue(SEED["relationships"])
+MAX_REQUEST_BODY_BYTES = 64 * 1024
 
 
 class Handler(SimpleHTTPRequestHandler):
+    """Serve static assets and the bounded activation-queue JSON API."""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
     def log_message(self, fmt: str, *args) -> None:
+        """Write one standard-library request log line to standard error."""
+
         sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
     def do_GET(self) -> None:  # noqa: N802
+        """Serve the home document, queue representation, or static fallback."""
+
         parsed = urlparse(self.path)
         if parsed.path in {"/", "/index.html"}:
             return self._file(ROOT / "web" / "index.html", "text/html; charset=utf-8")
@@ -39,24 +46,47 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
+        """Validate and apply one bounded relationship action."""
+
         parsed = urlparse(self.path)
         prefix = "/api/queue/"
         if not parsed.path.startswith(prefix):
             self.send_error(404)
             return
         relationship_id = parsed.path[len(prefix) :]
-        length = int(self.headers.get("Content-Length", "0"))
-        payload = json.loads(self.rfile.read(length) or b"{}")
         try:
+            raw_length = self.headers.get("Content-Length", "0")
+            try:
+                length = int(raw_length)
+            except ValueError as exc:
+                raise ValueError("Content-Length must be an integer") from exc
+            if not 0 <= length <= MAX_REQUEST_BODY_BYTES:
+                raise ValueError(
+                    f"Content-Length must be between 0 and {MAX_REQUEST_BODY_BYTES} bytes"
+                )
+            try:
+                payload = json.loads(self.rfile.read(length) or b"{}")
+            except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+                raise ValueError("request body must be a valid JSON object") from exc
+            if not isinstance(payload, dict):
+                raise ValueError("request body must be a valid JSON object")
             row = QUEUE.apply(
                 relationship_id,
                 str(payload.get("action", "")),
                 due=payload.get("due"),
             )
         except (KeyError, ValueError) as exc:
-            self._bytes(400, "application/json; charset=utf-8", json.dumps({"error": str(exc)}).encode())
+            self._bytes(
+                400,
+                "application/json; charset=utf-8",
+                json.dumps({"error": str(exc)}).encode(),
+            )
             return
-        self._bytes(200, "application/json; charset=utf-8", json.dumps(row.to_dict(), ensure_ascii=False).encode())
+        self._bytes(
+            200,
+            "application/json; charset=utf-8",
+            json.dumps(row.to_dict(), ensure_ascii=False).encode(),
+        )
 
     def _file(self, path: Path, content_type: str) -> None:
         data = path.read_bytes()
@@ -72,6 +102,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
+    """Run the loopback-only multithreaded demonstration server."""
+
     host, port = "127.0.0.1", 8765
     server = ThreadingHTTPServer((host, port), Handler)
     print(f"ELUNVERA activation queue → http://{host}:{port}/", flush=True)

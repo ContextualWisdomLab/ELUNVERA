@@ -17,6 +17,8 @@ ACTIONS = frozenset({"activate", "reschedule", "dismiss"})
 
 @dataclass(frozen=True)
 class Relationship:
+    """One tenant-local relationship and its next evidence-backed move."""
+
     id: str
     from_party: str
     to_party: str
@@ -28,6 +30,8 @@ class Relationship:
     lineage_cite: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Return the stable JSON-ready representation used by the HTTP boundary."""
+
         data = asdict(self)
         if data["lineage_cite"] is None:
             data.pop("lineage_cite")
@@ -35,6 +39,8 @@ class Relationship:
 
 
 class ActivationQueue:
+    """Manage the bounded home queue without owning graph or employment truth."""
+
     def __init__(self, items: Iterable[Mapping[str, Any]]) -> None:
         self._rows: dict[str, Relationship] = {}
         for raw in items:
@@ -63,6 +69,8 @@ class ActivationQueue:
         return sorted(rows, key=lambda r: (r.due, r.id))
 
     def get(self, relationship_id: str) -> Relationship:
+        """Return one relationship or raise a domain-specific missing-key error."""
+
         try:
             return self._rows[relationship_id]
         except KeyError as exc:
@@ -75,6 +83,8 @@ class ActivationQueue:
         *,
         due: str | None = None,
     ) -> Relationship:
+        """Apply one allowed move and return the resulting immutable snapshot."""
+
         if action not in ACTIONS:
             raise ValueError(f"unknown action {action!r}")
         current = self.get(relationship_id)
@@ -83,8 +93,10 @@ class ActivationQueue:
         elif action == "dismiss":
             updated = Relationship(**{**current.to_dict(), "status": "dismissed"})
         else:
-            if not due:
+            if due is None or due == "":
                 raise ValueError("reschedule requires a due date")
+            if not isinstance(due, str):
+                raise ValueError("due date must be a string")
             date.fromisoformat(due)
             updated = Relationship(
                 **{**current.to_dict(), "status": "rescheduled", "due": due}

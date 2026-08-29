@@ -73,3 +73,52 @@ def test_lineage_cite_is_optional_and_not_an_edge() -> None:
     dumped = row.to_dict()
     assert "edges" not in dumped
     assert "graph" not in dumped
+
+
+@pytest.mark.parametrize("due", [1, ["2026-09-10"], {"date": "2026-09-10"}])
+def test_reschedule_rejects_truthy_non_string_due(due: object) -> None:
+    """Public callers receive a domain ValueError instead of a type leak."""
+    queue = load_queue()
+    with pytest.raises(ValueError, match="due date must be a string"):
+        queue.apply("rel-001", "reschedule", due=due)  # type: ignore[arg-type]
+
+
+def test_parse_preserves_lineage_citation_and_defaults_status() -> None:
+    queue = ActivationQueue(
+        [
+            {
+                "id": "rel-cited",
+                "from_party": "A",
+                "to_party": "B",
+                "kind": "collaborator",
+                "next_move": "Review evidence",
+                "due": "2026-09-10",
+                "why_now": "Evidence arrived.",
+                "lineage_cite": "urn:lineage:node:1",
+            }
+        ]
+    )
+    row = queue.get("rel-cited")
+    assert row.status == "due"
+    assert row.to_dict()["lineage_cite"] == "urn:lineage:node:1"
+
+
+def test_get_rejects_unknown_relationship() -> None:
+    with pytest.raises(KeyError, match="unknown relationship rel-missing"):
+        load_queue().get("rel-missing")
+
+
+def test_apply_rejects_unknown_action() -> None:
+    with pytest.raises(ValueError, match="unknown action"):
+        load_queue().apply("rel-001", "archive")
+
+
+@pytest.mark.parametrize("due", [None, ""])
+def test_reschedule_requires_due_date(due: str | None) -> None:
+    with pytest.raises(ValueError, match="reschedule requires a due date"):
+        load_queue().apply("rel-001", "reschedule", due=due)
+
+
+def test_reschedule_rejects_invalid_iso_date() -> None:
+    with pytest.raises(ValueError, match="(Invalid isoformat|out of range)"):
+        load_queue().apply("rel-001", "reschedule", due="2026-02-30")
