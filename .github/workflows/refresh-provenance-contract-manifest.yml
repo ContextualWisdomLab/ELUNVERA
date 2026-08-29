@@ -1,0 +1,125 @@
+name: Verify required event provenance
+
+on:
+  push:
+    branches:
+      - docs/product-technical-baseline
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: elunvera-required-provenance-repair
+  cancel-in-progress: false
+
+jobs:
+  verify-and-refresh:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out exact feature branch
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # actions/checkout@v7
+        with:
+          ref: docs/product-technical-baseline
+          fetch-depth: 0
+
+      - name: Verify required provenance contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "b973b10d1db3c003df97bcc0d25676bdccfa1238c04f70188e8f54cc9a117a4c  schemas/asyncapi.yaml" | sha256sum --check -
+
+          ruby -ryaml - <<'RUBY'
+          contract = YAML.safe_load(File.read('schemas/asyncapi.yaml'), aliases: false)
+          raise 'AsyncAPI version mismatch' unless contract['asyncapi'] == '3.1.0'
+          envelope = contract.fetch('components').fetch('schemas').fetch('CloudEventEnvelope')
+          required = envelope.fetch('required')
+          raise 'provenanceref is not required' unless required.include?('provenanceref')
+          provenance = envelope.fetch('properties').fetch('provenanceref')
+          raise 'provenanceref must be non-null string' unless provenance['type'] == 'string'
+          raise 'provenanceref must reject empty references' unless provenance['minLength'].to_i >= 1
+          raise 'producer operations regressed' unless contract.fetch('operations').values.all? { |operation| operation['action'] == 'send' }
+          RUBY
+
+      - name: Regenerate the deterministic manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/refresh-provenance-contract-manifest.yml
+          python - <<'PY'
+          import hashlib
+          import json
+          import subprocess
+          from pathlib import Path
+
+          manifest_path = Path('manifest.json')
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          paths = [
+              Path(path)
+              for path in subprocess.check_output(
+                  ['git', 'ls-files'], text=True
+              ).splitlines()
+              if path != 'manifest.json'
+          ]
+          entries = []
+          for path in sorted(paths, key=lambda item: item.as_posix()):
+              payload = path.read_bytes()
+              entries.append(
+                  {
+                      'path': path.as_posix(),
+                      'sha256': hashlib.sha256(payload).hexdigest(),
+                      'size_bytes': len(payload),
+                      'line_count': len(payload.decode('utf-8').splitlines()),
+                  }
+              )
+
+          manifest['file_count'] = len(entries)
+          manifest['files'] = entries
+          assert manifest['self_excluded'] is True
+          assert manifest['file_count'] == 54
+          async_entry = next(
+              entry for entry in entries
+              if entry['path'] == 'schemas/asyncapi.yaml'
+          )
+          assert async_entry == {
+              'path': 'schemas/asyncapi.yaml',
+              'sha256': 'b973b10d1db3c003df97bcc0d25676bdccfa1238c04f70188e8f54cc9a117a4c',
+              'size_bytes': 3682,
+              'line_count': 126,
+          }
+          manifest_path.write_text(
+              json.dumps(manifest, indent=2, ensure_ascii=False) + '\n',
+              encoding='utf-8',
+          )
+          PY
+
+          git add manifest.json
+          git diff --cached --check
+
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          manifest = json.loads(Path('manifest.json').read_text(encoding='utf-8'))
+          assert manifest['file_count'] == len(manifest['files']) == 54
+          for entry in manifest['files']:
+              path = Path(entry['path'])
+              payload = path.read_bytes()
+              assert hashlib.sha256(payload).hexdigest() == entry['sha256'], path
+              assert len(payload) == entry['size_bytes'], path
+              assert len(payload.decode('utf-8').splitlines()) == entry['line_count'], path
+          PY
+
+      - name: Commit verified manifest refresh
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          test "$(git ls-files | wc -l)" -eq 55
+          test ! -e .github/workflows/refresh-provenance-contract-manifest.yml
+          git commit -m "chore: refresh required-provenance manifest"
+          git push origin HEAD:docs/product-technical-baseline
