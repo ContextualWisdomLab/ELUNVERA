@@ -1,5 +1,7 @@
 # ELUNVERA
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ContextualWisdomLab/ELUNVERA)
+
 > **Every Link, Understood. Every Relationship, Activated.**
 
 ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence platform. It gives customer-facing teams a governed system of record for commercial accounts, stakeholders, interactions, commitments, opportunities, customer outcomes, and the decisions that connect them.
