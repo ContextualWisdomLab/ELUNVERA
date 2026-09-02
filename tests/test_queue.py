@@ -188,3 +188,34 @@ def test_relationship_identity_requires_non_empty_string(relationship_id: object
     invalid["relationship_id"] = relationship_id
     with pytest.raises(ValueError, match="relationship_id must be a non-empty string"):
         ActivationQueue([invalid])
+
+
+@pytest.mark.parametrize("due", [None, 17, "", "2026-02-30", "2026/09/10"])
+def test_source_snapshot_requires_valid_iso_due_date(due: object) -> None:
+    """Malformed source due dates must fail closed instead of corrupting queue order."""
+
+    invalid = dict(TEST_RELATIONSHIPS[0])
+    invalid["due"] = due
+    with pytest.raises(ValueError, match="due"):
+        ActivationQueue([invalid])
+
+
+@pytest.mark.parametrize("status", [None, 17, "", "pending", "archived"])
+def test_source_snapshot_rejects_unknown_status(status: object) -> None:
+    """Unknown source state must not silently disappear from the buyer queue."""
+
+    invalid = dict(TEST_RELATIONSHIPS[0])
+    invalid["status"] = status
+    with pytest.raises(ValueError, match="status"):
+        ActivationQueue([invalid])
+
+
+@pytest.mark.parametrize("action", ["activate", "dismiss", "reschedule"])
+def test_terminal_relationship_cannot_transition_again(action: str) -> None:
+    """Terminal activation decisions are immutable within the aggregate."""
+
+    queue = load_queue()
+    queue.apply("rel-001", "activate")
+    kwargs = {"due": "2026-09-12"} if action == "reschedule" else {}
+    with pytest.raises(ValueError, match="terminal"):
+        queue.apply("rel-001", action, **kwargs)
