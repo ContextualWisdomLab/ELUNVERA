@@ -69,7 +69,7 @@ This repository currently contains a **documentation and contract baseline only*
 
 ## Working conventions
 
-- Primary integration branch: `develop`
+- Primary integration branch: `main`
 - Review flow: feature branch → current-head checks → independent review → squash merge
 - Database object names: two or more words in `snake_case`
 - Production arithmetic and model computation: Rust
