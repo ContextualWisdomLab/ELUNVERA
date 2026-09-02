@@ -1,12 +1,12 @@
 # ELUNVERA Test Strategy
 
-- **Document version:** 0.1
+- **Document version:** 0.2
 - **Status:** Proposed quality baseline
-- **Date:** 2026-08-27
+- **Date:** 2026-09-02
 
 ## 1. Objective
 
-Testing must demonstrate product behavior, tenant and privacy boundaries, temporal correctness, scientific validity, accessibility, performance, recovery, and release reproducibility. Test counts or green status without realistic assertions are not sufficient evidence.
+Testing must demonstrate product behavior, tenant and privacy boundaries, temporal correctness, scientific validity, accessibility, internationalization, performance, recovery, and release reproducibility. Test counts or green status without realistic assertions are not sufficient evidence.
 
 ## 2. Quality gates
 
@@ -26,7 +26,7 @@ Generated clients and third-party code are measured separately and may not dilut
 
 ### Unit tests
 
-Validate domain state transitions, temporal interval operations, identifier handling, currency arithmetic, policy decisions, schema transformations, and error paths.
+Validate domain state transitions, temporal interval operations, identifier handling, currency arithmetic, policy decisions, translation-resource revision transitions, schema transformations, and error paths.
 
 ### Property tests
 
@@ -38,19 +38,21 @@ Generate sequences of commands and prove invariants including:
 - idempotent command replay produces one event and one aggregate version;
 - stage history never disappears after correction;
 - disclosure decisions are monotonic with stricter policy;
-- relationship participants remain tenant-consistent.
+- relationship participants remain tenant-consistent;
+- an approved translation revision is immutable and rollback selects a prior immutable revision;
+- draft translation item UPSERT never creates duplicate `(translation_resource_id, locale_code, screen_key)` items within one revision.
 
 ### Database integration tests
 
-Run against real PostgreSQL 18.6 or a later supported 18.x patch. Validate migrations, RLS, temporal constraints, indexes, transaction isolation, outbox atomicity, lock behavior, partition pruning, backup, and restore.
+Run against real PostgreSQL 18.6 or a later supported 18.x patch. Validate migrations, RLS, temporal constraints, indexes, transaction isolation, outbox atomicity, lock behavior, partition pruning, translation-resource item-level UPSERT/idempotency, backup, and restore.
 
 ### Contract tests
 
-Validate OpenAPI, AsyncAPI, CloudEvents, JSON Schema, generated clients, Problem Details, pagination cursors, idempotency, ETags, provider adapters, and backward compatibility.
+Validate OpenAPI, AsyncAPI, CloudEvents, JSON Schema, generated clients, Problem Details, pagination cursors, idempotency, ETags, provider adapters, translation screen-key/revision responses, and backward compatibility.
 
 ### Fuzz tests
 
-Target parsers, identifiers, rich text, import payloads, webhook signatures, cursor decoding, date intervals, currency input, CSV/Office exports, and event envelopes.
+Target parsers, identifiers, rich text, import payloads, webhook signatures, cursor decoding, date intervals, currency input, CSV/Office exports, translation keys/locale tags, and event envelopes.
 
 ### Security tests
 
@@ -74,18 +76,20 @@ A model feature cannot pass through ordinary snapshot tests alone. Required evid
 
 Arbitrary weights and rule-of-thumb thresholds are prohibited.
 
-### UX and accessibility tests
+### UX, accessibility, and locale tests
 
 - keyboard-only journeys;
 - screen-reader semantics;
-- focus order and restoration;
+- focus order, focus visibility, focus-not-obscured, and restoration;
 - touch target and mobile viewport;
 - high zoom and text reflow;
 - reduced-motion preference;
-- Korean and English copy expansion;
-- loading, empty, partial, stale, conflict, denied, offline, and error states;
+- `ko/en/ja/zh/vi/es/de/fr` locale matrix covering CJK, expansion, wrapping, font fallback, dates, names, addresses, currencies, time zones, sorting, and validation copy;
+- DB-backed translation revision fetch/cache/invalidation, review/approval/deploy/rollback, and no-full-browser-catalog assertions;
+- loading, empty, partial, stale, conflict, denied, permission, offline, and error states;
 - exact-value tables and print/PDF output for charts;
-- Storybook interaction and accessibility tests.
+- Storybook interaction, locale, responsive, and accessibility tests;
+- screenshot review for desktop, tablet, mobile, typography/color, forms/feedback, navigation, charts/data, and action edges.
 
 ### End-to-end buyer journeys
 
@@ -96,13 +100,14 @@ Arbitrary weights and rule-of-thumb thresholds are prohibited.
 5. Resolve a complaint and connect remedy, outcome, and follow-up.
 6. Submit a data-access case and inspect a purpose-limited export.
 7. Attempt cross-tenant reads, writes, search, graph traversal, export, and model access.
-8. Restore the system and prove data, outbox, projection, and key consistency.
+8. Restore the system and prove data, outbox, projection, translation revision, and key consistency.
+9. Repeat buyer-visible journeys in every release locale with realistic expansion and CJK-sensitive content.
 
 ## 4. Realistic fixtures
 
 Fixtures represent multi-stakeholder B2B relationships, account hierarchy, role changes, former employees, multiple opportunities, delayed interactions, conflicting commitments, complaints, multiple currencies, duplicated events, malformed imports, and multilingual text. Names and organizations are synthetic.
 
-Synthetic data is labeled and never used as evidence of customer accuracy or product-market fit.
+Synthetic data is unit-test-only and never used as evidence of customer accuracy, product-market fit, production load behavior, or buyer-facing latency.
 
 ## 5. Temporal validation
 
@@ -119,19 +124,20 @@ Tests use both business time and recorded time. Cases include:
 
 ## 6. Performance and load
 
-A k6 or equivalent end-to-end suite exercises asynchronous and synchronous workflows. Initial engineering acceptance targets are:
+Realistic k6 end-to-end suites exercise every buyer-facing page and asynchronous workflow. Every buyer-facing page has a release target of **p95 ≤ 20 ms** at the declared ready-to-interact boundary under the documented release benchmark profile. The denominator includes all measured page samples; slow samples are not excluded, the dataset is not shrunk to pass, and warmup/cache state must reflect the declared production profile.
+
+The harness records request, database/query, render, bundle/heap/DOM/hydration/main-thread/GC, network, connection-pool, and runtime evidence where applicable. If a page misses the target, the causal algorithm/query/I/O/render/runtime is profiled and repaired; sampling or thresholds are not weakened. Search or deep exploration that cannot fit the interactive budget becomes explicitly bounded/paginated or asynchronous.
+
+Additional throughput and asynchronous contracts are:
 
 | Workload | Target |
 |---|---:|
-| account summary read | p95 ≤ 300 ms at 200 concurrent users |
-| account timeline, 1,000 entries | p95 ≤ 700 ms |
-| relationship neighborhood, depth 2 | p95 ≤ 1.5 s with bounded result set |
-| optimistic update | p95 ≤ 500 ms |
-| event ingestion | sustained 1,000 events/s per deployment profile |
+| every buyer-facing page | p95 ≤ 20 ms |
+| event ingestion | sustained 1,000 events/s per declared deployment profile |
 | queue admission under saturation | bounded response with no silent drop |
-| export request | acknowledgement ≤ 500 ms; asynchronous completion |
+| export/import/model/connector request | non-blocking acknowledgement with durable job status/cancellation |
 
-These are release targets, not current performance claims. Tests record hardware, dataset size, connection pools, cache state, and commit SHA.
+Tests record hardware, CPU/GPU path when relevant, container limits, dataset size, PostgreSQL/app/shm configuration, connection pools, cache state, browser/runtime versions, and exact commit SHA. Docker, Podman, and Colima compatibility is exercised without using project-name overrides except for test isolation.
 
 ## 7. Recovery testing
 
@@ -140,6 +146,7 @@ These are release targets, not current performance claims. Tests record hardware
 - schema compatibility and migration replay;
 - outbox/inbox deduplication after restore;
 - projection rebuild from canonical data;
+- translation-resource revision and active-deployment restoration;
 - object-store artifact reconciliation;
 - lost worker and connection interruption;
 - partial provider outage;
@@ -153,7 +160,8 @@ Suggested required checks:
 Contract and documentation validation
 Rust format, lint, unit, property, and doc tests
 PostgreSQL integration and migration rehearsal
-Frontend lint, typecheck, unit, Storybook, and E2E
+Frontend lint, typecheck, unit, Storybook, locale, and E2E
+k6 realistic buyer-page performance gate
 Coverage and documentation gate
 SAST and secret scan
 Dependency review and vulnerability scan
@@ -163,8 +171,8 @@ Supply-chain SBOM and provenance
 Production-readiness evidence
 ```
 
-Every check runs on the exact PR head or merge-result tree specified by branch policy. Prior-head success is not current evidence.
+Every check runs on the exact PR head or merge-result tree specified by branch policy. Prior-head success is not current evidence. A queued, skipped, startup-failed, or unmaterialized required job is not passing evidence.
 
 ## 9. Test-evidence manifest
 
-A release manifest records command, environment, commit, dependency lock hash, database version, browser version, test counts, coverage denominators, skipped tests, benchmark profile, artifact hashes, and reviewer identity.
+A release manifest records command, environment, commit, dependency lock hash, database version, browser/runtime version, test counts, coverage denominators, skipped tests, locale matrix, benchmark profile, complete performance denominator, artifact hashes, and reviewer identity.
