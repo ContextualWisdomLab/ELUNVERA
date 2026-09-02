@@ -2,7 +2,7 @@
 
 ## Branching
 
-- Base product work on `develop`.
+- Base ordinary product work on canonical protected `main`; a stacked PR may target its verified prerequisite feature branch until that prerequisite is integrated.
 - Use bounded branches such as `docs/product-technical-baseline`, `feat/account-registry`, or `fix/tenant-authorization`.
 - One pull request should deliver one independently reviewable product or platform slice.
 
