@@ -3,10 +3,11 @@ name: document-contracts
 on:
   pull_request:
     branches:
+      - main
       - develop
   push:
     branches:
-      - develop
+      - main
   workflow_dispatch:
 
 permissions:
