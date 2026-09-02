@@ -47,12 +47,17 @@ class ActivationQueue:
             row = self._parse(raw)
             if row.kind not in ALLOWED_KINDS:
                 raise ValueError(f"kind {row.kind!r} is not an ELUNVERA relationship kind")
+            if row.relationship_id in self._rows:
+                raise ValueError(f"duplicate relationship_id {row.relationship_id}")
             self._rows[row.relationship_id] = row
 
     @staticmethod
     def _parse(raw: Mapping[str, Any]) -> Relationship:
+        relationship_id = raw["relationship_id"]
+        if not isinstance(relationship_id, str) or not relationship_id.strip():
+            raise ValueError("relationship_id must be a non-empty string")
         return Relationship(
-            relationship_id=str(raw["relationship_id"]),
+            relationship_id=relationship_id,
             from_party=str(raw["from_party"]),
             to_party=str(raw["to_party"]),
             kind=str(raw["kind"]),
