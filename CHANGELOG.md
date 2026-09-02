@@ -24,3 +24,4 @@ All notable ELUNVERA changes are recorded here while the product is pre-release.
 - Added test-first aggregate identity guards: relationship identifiers must be non-empty strings and duplicate `relationship_id` snapshots are rejected instead of silently overwriting an existing aggregate.
 - Added test-first source-snapshot validation for real ISO due dates and known activation statuses, and made activated/dismissed relationships terminal so repeated commands fail closed instead of rewriting a completed decision.
 - Added test-first validation for buyer-visible party/move/evidence text and optional provenance references so malformed source values are rejected rather than silently string-coerced into customer state.
+- Added a test-first HTTP input contract for `action`: non-string JSON values now fail closed with a typed 400 error instead of being silently converted with `str(...)` before domain validation.
