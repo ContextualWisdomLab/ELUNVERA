@@ -23,3 +23,4 @@ All notable ELUNVERA changes are recorded here while the product is pre-release.
 - Replaced generic repository-root static serving with an explicit allowlist for the product HTML/CSS/JavaScript surface; repository docs, workflows, dependency manifests, and other internal files now return 404 from the prototype HTTP boundary.
 - Added test-first aggregate identity guards: relationship identifiers must be non-empty strings and duplicate `relationship_id` snapshots are rejected instead of silently overwriting an existing aggregate.
 - Added test-first source-snapshot validation for real ISO due dates and known activation statuses, and made activated/dismissed relationships terminal so repeated commands fail closed instead of rewriting a completed decision.
+- Added test-first validation for buyer-visible party/move/evidence text and optional provenance references so malformed source values are rejected rather than silently string-coerced into customer state.
