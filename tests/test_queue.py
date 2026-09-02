@@ -219,3 +219,24 @@ def test_terminal_relationship_cannot_transition_again(action: str) -> None:
     kwargs = {"due": "2026-09-12"} if action == "reschedule" else {}
     with pytest.raises(ValueError, match="terminal"):
         queue.apply("rel-001", action, **kwargs)
+
+
+@pytest.mark.parametrize("field", ["from_party", "to_party", "next_move", "why_now"])
+@pytest.mark.parametrize("value", [None, 17, "", "   "])
+def test_source_snapshot_requires_non_empty_text_fields(field: str, value: object) -> None:
+    """Buyer-visible source facts must not be silently coerced or rendered blank."""
+
+    invalid = dict(TEST_RELATIONSHIPS[0])
+    invalid[field] = value
+    with pytest.raises(ValueError, match=field):
+        ActivationQueue([invalid])
+
+
+@pytest.mark.parametrize("lineage_cite", [17, [], {}, "", "   "])
+def test_lineage_reference_must_be_non_empty_string_when_present(lineage_cite: object) -> None:
+    """Foreign provenance references fail closed instead of being string-coerced."""
+
+    invalid = dict(TEST_RELATIONSHIPS[0])
+    invalid["lineage_cite"] = lineage_cite
+    with pytest.raises(ValueError, match="lineage_cite"):
+        ActivationQueue([invalid])
