@@ -6,7 +6,7 @@ ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence pl
 
 ## Start here
 
-- [Repository README](../README.md) — product promise, bounded responsibility, development status, and documentation map.
+- [Repository README](https://github.com/ContextualWisdomLab/ELUNVERA/blob/develop/README.md) — product promise, bounded responsibility, development status, and documentation map.
 - [Product requirements](PRD.md) — users, jobs, requirements, scope, and release criteria.
 - [Technical requirements](TRD.md) — platform constraints and implementation contracts.
 - [Architecture](ARCHITECTURE.md) — bounded contexts, components, trust zones, and deployment model.
@@ -20,6 +20,7 @@ ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence pl
 - [Architecture decisions](adr/README.md) — accepted and proposed product/technical decisions.
 - [Product/technical gap baseline](product-technical-gap-baseline.md) — current evidence, missing capabilities, and next actions.
 - [Research and standards references](doctoring/REFERENCES.md) — APA-style source register.
+- [Apache License 2.0](https://github.com/ContextualWisdomLab/ELUNVERA/blob/develop/LICENSE) — repository grant for ContextualWisdomLab-authored source and documentation.
 
 ## Product boundary
 
@@ -34,6 +35,10 @@ The current reviewed source is a documentation and machine-readable contract bas
 ## Onboarding and verification
 
 Begin with the PRD, TRD, architecture, data model, and API contract before implementing a product slice. The repository's permanent document/contract workflow and current protected-branch checks remain the integration authority. Any implementation must preserve the documented bitemporal/evidence model, normalized PostgreSQL system-of-record boundary, explicit service contracts, accessibility target, and security/privacy constraints.
+
+## License and rights boundary
+
+ContextualWisdomLab-authored ELUNVERA source and documentation are licensed under Apache License 2.0. That grant does not assert trademark registration and does not relicense standards, dependencies, generated assets, datasets, models, provider services, or future imported material. Those components remain subject to independent provenance, commercial-license compatibility, and attribution review.
 
 ## Releases and deeper exploration
 
