@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- The integration base is `develop`.
+- The ordinary integration base is canonical protected `main`; dependency stacks may temporarily target a verified prerequisite feature branch.
 - Canonical database objects use at least two-word `snake_case` names.
 - Production logic and arithmetic are Rust; TypeScript is UI/client only.
 - PostgreSQL is canonical; search and graph are projections.
