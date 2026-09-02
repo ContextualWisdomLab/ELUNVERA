@@ -1,20 +1,59 @@
-"""Product tests for the activation queue — not a 3-second stub."""
+"""Product tests for the activation queue using anonymized test-only fixtures."""
 
 from __future__ import annotations
-
-import json
-from pathlib import Path
 
 import pytest
 
 from elunvera import ActivationQueue
 
-SEED = Path(__file__).resolve().parents[1] / "data" / "activations.json"
+TEST_RELATIONSHIPS = [
+    {
+        "id": "rel-001",
+        "from_party": "Account Alpha",
+        "to_party": "Contact One",
+        "kind": "partner",
+        "next_move": "Confirm the next review date",
+        "due": "2026-08-28",
+        "why_now": "A test-only follow-up is due.",
+        "status": "due",
+    },
+    {
+        "id": "rel-002",
+        "from_party": "Account Beta",
+        "to_party": "Contact Two",
+        "kind": "advisor",
+        "next_move": "Share the bounded product note",
+        "due": "2026-08-29",
+        "why_now": "A test-only advisory review is scheduled.",
+        "status": "due",
+    },
+    {
+        "id": "rel-003",
+        "from_party": "Account Gamma",
+        "to_party": "Contact Three",
+        "kind": "account-contact",
+        "next_move": "Confirm the next check-in owner",
+        "due": "2026-08-27",
+        "why_now": "A test-only check-in is overdue.",
+        "status": "due",
+    },
+    {
+        "id": "rel-004",
+        "from_party": "Account Delta",
+        "to_party": "Contact Four",
+        "kind": "collaborator",
+        "next_move": "Review the next collaboration step",
+        "due": "2026-08-30",
+        "why_now": "A test-only collaboration review is scheduled.",
+        "status": "rescheduled",
+    },
+]
 
 
 def load_queue() -> ActivationQueue:
-    payload = json.loads(SEED.read_text(encoding="utf-8"))
-    return ActivationQueue(payload["relationships"])
+    """Build a fresh queue from anonymized unit-test fixtures."""
+
+    return ActivationQueue(TEST_RELATIONSHIPS)
 
 
 def test_home_is_due_first_not_a_graph() -> None:
@@ -55,12 +94,12 @@ def test_rejects_employment_or_lineage_kinds() -> None:
             [
                 {
                     "id": "rel-x",
-                    "from_party": "A",
-                    "to_party": "B",
+                    "from_party": "Account Test",
+                    "to_party": "Contact Test",
                     "kind": "employment",
-                    "next_move": "n/a",
+                    "next_move": "Not applicable",
                     "due": "2026-08-27",
-                    "why_now": "n/a",
+                    "why_now": "A test-only invalid boundary case.",
                     "status": "due",
                 }
             ]
@@ -78,6 +117,7 @@ def test_lineage_cite_is_optional_and_not_an_edge() -> None:
 @pytest.mark.parametrize("due", [1, ["2026-09-10"], {"date": "2026-09-10"}])
 def test_reschedule_rejects_truthy_non_string_due(due: object) -> None:
     """Public callers receive a domain ValueError instead of a type leak."""
+
     queue = load_queue()
     with pytest.raises(ValueError, match="due date must be a string"):
         queue.apply("rel-001", "reschedule", due=due)  # type: ignore[arg-type]
@@ -88,19 +128,19 @@ def test_parse_preserves_lineage_citation_and_defaults_status() -> None:
         [
             {
                 "id": "rel-cited",
-                "from_party": "A",
-                "to_party": "B",
+                "from_party": "Account Citation",
+                "to_party": "Contact Citation",
                 "kind": "collaborator",
                 "next_move": "Review evidence",
                 "due": "2026-09-10",
-                "why_now": "Evidence arrived.",
-                "lineage_cite": "urn:lineage:node:1",
+                "why_now": "Test-only evidence arrived.",
+                "lineage_cite": "urn:lineage:test-node:1",
             }
         ]
     )
     row = queue.get("rel-cited")
     assert row.status == "due"
-    assert row.to_dict()["lineage_cite"] == "urn:lineage:node:1"
+    assert row.to_dict()["lineage_cite"] == "urn:lineage:test-node:1"
 
 
 def test_get_rejects_unknown_relationship() -> None:
