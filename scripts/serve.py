@@ -113,9 +113,12 @@ class Handler(SimpleHTTPRequestHandler):
                 raise ValueError("request body must be a valid JSON object") from exc
             if not isinstance(payload, dict):
                 raise ValueError("request body must be a valid JSON object")
+            action = payload.get("action", "")
+            if not isinstance(action, str):
+                raise ValueError("action must be a string")
             row = QUEUE.apply(
                 relationship_id,
-                str(payload.get("action", "")),
+                action,
                 due=payload.get("due"),
             )
         except (KeyError, ValueError) as exc:
