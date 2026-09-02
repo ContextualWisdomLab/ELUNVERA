@@ -1,7 +1,7 @@
 """Activation queue: next move on a known relationship.
 
 This module must not grow graph edges, retrieval ranking, catalog types,
-or employment records. Optional `lineage_cite` is a foreign id, never an edge.
+or employment records. Optional `lineage_cite` is a foreign identifier, never an edge.
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ ACTIONS = frozenset({"activate", "reschedule", "dismiss"})
 class Relationship:
     """One tenant-local relationship and its next evidence-backed move."""
 
-    id: str
+    relationship_id: str
     from_party: str
     to_party: str
     kind: str
@@ -47,12 +47,12 @@ class ActivationQueue:
             row = self._parse(raw)
             if row.kind not in ALLOWED_KINDS:
                 raise ValueError(f"kind {row.kind!r} is not an ELUNVERA relationship kind")
-            self._rows[row.id] = row
+            self._rows[row.relationship_id] = row
 
     @staticmethod
     def _parse(raw: Mapping[str, Any]) -> Relationship:
         return Relationship(
-            id=str(raw["id"]),
+            relationship_id=str(raw["relationship_id"]),
             from_party=str(raw["from_party"]),
             to_party=str(raw["to_party"]),
             kind=str(raw["kind"]),
@@ -65,8 +65,9 @@ class ActivationQueue:
 
     def home(self) -> list[Relationship]:
         """Customer-visible queue: due/rescheduled, earliest due first."""
-        rows = [r for r in self._rows.values() if r.status in HOME_STATUSES]
-        return sorted(rows, key=lambda r: (r.due, r.id))
+
+        rows = [row for row in self._rows.values() if row.status in HOME_STATUSES]
+        return sorted(rows, key=lambda row: (row.due, row.relationship_id))
 
     def get(self, relationship_id: str) -> Relationship:
         """Return one relationship or raise a domain-specific missing-key error."""
