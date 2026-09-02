@@ -169,3 +169,22 @@ def test_reschedule_requires_due_date(due: str | None) -> None:
 def test_reschedule_rejects_invalid_iso_date() -> None:
     with pytest.raises(ValueError, match="(Invalid isoformat|out of range)"):
         load_queue().apply("rel-001", "reschedule", due="2026-02-30")
+
+
+def test_duplicate_relationship_identity_fails_closed() -> None:
+    """Two aggregate snapshots may not silently overwrite the same identity."""
+
+    duplicate = dict(TEST_RELATIONSHIPS[0])
+    duplicate["from_party"] = "Account Duplicate"
+    with pytest.raises(ValueError, match="duplicate relationship_id rel-001"):
+        ActivationQueue([TEST_RELATIONSHIPS[0], duplicate])
+
+
+@pytest.mark.parametrize("relationship_id", [None, 17, "", "   "])
+def test_relationship_identity_requires_non_empty_string(relationship_id: object) -> None:
+    """Aggregate identity rejects coercion and blank identifiers."""
+
+    invalid = dict(TEST_RELATIONSHIPS[0])
+    invalid["relationship_id"] = relationship_id
+    with pytest.raises(ValueError, match="relationship_id must be a non-empty string"):
+        ActivationQueue([invalid])
