@@ -6,7 +6,7 @@ ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence pl
 
 ## Start here
 
-- [Repository README](https://github.com/ContextualWisdomLab/ELUNVERA/blob/develop/README.md) — product promise, bounded responsibility, development status, and documentation map.
+- [Repository README](https://github.com/ContextualWisdomLab/ELUNVERA/blob/main/README.md) — product promise, bounded responsibility, development status, and documentation map.
 - [Product requirements](PRD.md) — users, jobs, requirements, scope, and release criteria.
 - [Technical requirements](TRD.md) — platform constraints and implementation contracts.
 - [Architecture](ARCHITECTURE.md) — bounded contexts, components, trust zones, and deployment model.
@@ -20,7 +20,7 @@ ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence pl
 - [Architecture decisions](adr/README.md) — accepted and proposed product/technical decisions.
 - [Product/technical gap baseline](product-technical-gap-baseline.md) — current evidence, missing capabilities, and next actions.
 - [Research and standards references](doctoring/REFERENCES.md) — APA-style source register.
-- [Apache License 2.0](https://github.com/ContextualWisdomLab/ELUNVERA/blob/develop/LICENSE) — repository grant for ContextualWisdomLab-authored source and documentation.
+- [Apache License 2.0](https://github.com/ContextualWisdomLab/ELUNVERA/blob/main/LICENSE) — repository grant for ContextualWisdomLab-authored source and documentation.
 
 ## Product boundary
 
