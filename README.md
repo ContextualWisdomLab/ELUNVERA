@@ -61,6 +61,7 @@ ELUNVERA consumes but does not own:
 | [`docs/product-technical-gap-baseline.md`](docs/product-technical-gap-baseline.md) | Current implementation truth and prioritized gaps |
 | [`docs/adr/README.md`](docs/adr/README.md) | Architecture decision index |
 | [`docs/doctoring/REFERENCES.md`](docs/doctoring/REFERENCES.md) | APA 7th research and standards bibliography |
+| [`LICENSE`](LICENSE) | Apache License 2.0 grant for ELUNVERA-authored source and documentation |
 
 ## Development status
 
@@ -80,4 +81,4 @@ This repository currently contains a **documentation and contract baseline only*
 
 ## License
 
-No software license is asserted by this documentation-only baseline. A repository license decision must be recorded before distributable source code is accepted.
+ContextualWisdomLab-authored ELUNVERA source and documentation are licensed under the [Apache License 2.0](LICENSE). The license grant does not assert trademark registration and does not relicense third-party standards, dependencies, generated assets, datasets, models, provider services, or future imported material. Those components retain their own terms and require independent provenance and commercial-license review before incorporation or distribution.
