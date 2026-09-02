@@ -1,8 +1,8 @@
 # ELUNVERA Technical Requirements Document
 
-- **Document version:** 0.1
+- **Document version:** 0.2
 - **Status:** Proposed technical baseline
-- **Date:** 2026-08-27
+- **Date:** 2026-09-02
 
 ## 1. Technical objective
 
@@ -52,6 +52,7 @@ ELUNVERA/
 │   ├── customer_outcomes/
 │   ├── complaint_management/
 │   ├── privacy_rights/
+│   ├── translation_resources/
 │   ├── audit_provenance/
 │   ├── integration_outbox/
 │   ├── search_projection/
@@ -138,7 +139,13 @@ Owns desired outcomes, observations, complaint lifecycle, remedies, satisfaction
 
 Owns purpose registry, communication preferences, consent or other processing-basis references, data-rights cases, retention decisions, legal hold, disposition receipts, and export manifests.
 
-### 5.10 Audit and provenance
+### 5.10 Translation resources
+
+ELUNVERA owns its product UI translation authority until a separately released CWL translation product proves a reusable contract. The bounded context owns review, approval, deployment, rollback, and immutable revision history for screen-key resources in `ko`, `en`, `ja`, `zh`, `vi`, `es`, `de`, and `fr`. UI translation resources remain distinct from ontology labels and product-domain ubiquitous language.
+
+The relational model uses multi-word 3NF objects such as `translation_resource`, `translation_revision`, and `translation_text`. Runtime server/native clients fetch and cache only the screen keys they need, with revision-aware invalidation; the browser must not download a full translation catalog or require a heavyweight client i18n runtime.
+
+### 5.11 Audit and provenance
 
 Owns immutable audit events, source receipts, model claims, evidence links, event publication receipts, and data-transformation lineage.
 
@@ -148,7 +155,7 @@ Owns immutable audit events, source receipts, model claims, evidence links, even
 
 - PostgreSQL is the authoritative store.
 - Canonical domain data is normalized to 3NF.
-- JSONB is restricted to immutable provider payload metadata, schema-versioned extension values, or diagnostic context that does not determine money, authorization, tenancy, stage, relationship truth, or model score.
+- JSONB is restricted to immutable provider payload metadata, schema-versioned extension values, or diagnostic context that does not determine money, authorization, tenancy, stage, relationship truth, model score, or translation publication state.
 - Graph, search, vector, analytics, and dashboard stores are rebuildable projections.
 - External system identifiers are isolated in mapping tables.
 
@@ -201,6 +208,7 @@ A tenant ID alone must not create a single unbounded hot partition.
 - Retries with the same key and payload return the same result.
 - Reuse of a key with a different payload fails closed.
 - Every ingestion batch has item-level results; one malformed item does not silently discard neighboring items.
+- Translation publication is revision-addressed; item-level UPSERT is explicit for draft resource editing, while approved/released revisions remain immutable and rollback selects a prior immutable revision rather than mutating history.
 
 ## 8. HTTP requirements
 
@@ -259,12 +267,14 @@ The normalized relationship store is authoritative. A graph projection may be re
 
 - Core CRUD, search filters, authorization, exports, and workflow state do not require an LLM.
 - All LLM requests go through `contextual-orchestrator`.
-- Prompt, provider, model, reasoning level, tool access, source references, result schema, and verification status are recorded.
+- GitHub Actions model-backed workflows use only the released contextual-orchestrator gateway with `orchestrator/free`; workflow code does not select a provider, model, group, or paid fallback.
+- Prompt, provider, model, reasoning level, tool access, source references, result schema, and verification status are recorded where the released contextual-orchestrator contract exposes them.
 - Source documents are untrusted content and cannot alter system policy or tool permissions.
 - Outputs use strict JSON Schema.
 - Unsupported claims are removed or marked unsupported.
 - An assistant action is separated into proposal, authorization, execution, observation, and verification.
 - Model fallback must preserve operation capability; chat, embeddings, image, audio, and structured outputs are not interchangeable.
+- Default model timeout is unset unless an administrator explicitly configures one; user cancellation, provider completion, and administrative timeout are distinct terminal causes.
 
 ## 12. Numerical model requirements
 
@@ -310,15 +320,18 @@ A connector capability manifest declares read, propose, write, delete, export, w
 - Exports require purpose, field policy, bounded scope, and a signed receipt.
 - Model and connector content is untrusted.
 
-## 15. Frontend requirements
+## 15. Frontend and page-performance requirements
 
 - Design tokens are the only source for repeated spacing, typography, color, elevation, and motion.
-- Shared components are documented in Storybook with loading, empty, error, access-denied, stale, conflict, partial-data, and offline states.
+- Shared components are documented in Storybook with normal, loading, empty, error, access-denied, stale, conflict, partial-data, offline, permission, responsive, and interaction states.
 - Figma file ID and component mapping are recorded before production UI acceptance.
 - Account overview uses three horizontal bands: context, relationships, and action.
 - A generic floating chat box is not the primary interface; evidence-grounded assistance is embedded in the active account or workflow context.
 - Every write action has pending, success, retryable failure, and conflict states.
 - No internal repository or service name appears in customer-facing copy.
+- Every buyer-facing page is exercised with realistic k6 end-to-end load and must reach p95 ≤ 20 ms at the ready-to-interact boundary for the declared release profile. Slow samples, realistic dataset volume, database/query/render time, browser bundle/heap/DOM/hydration/main-thread/GC cost, and cold-path effects may not be hidden to satisfy the SLO.
+- When the target is missed, profile and repair the causal algorithm, query, I/O, rendering, runtime, or Rust hot path rather than shrinking the sample or weakening the target.
+- Product-owned forms and pages support `ko`, `en`, `ja`, `zh`, `vi`, `es`, `de`, and `fr`, including CJK, expansion, font-fallback, wrapping, keyboard, touch, and responsive evidence.
 
 ## 16. Operations requirements
 
@@ -329,6 +342,7 @@ A connector capability manifest declares read, propose, write, delete, export, w
 - SLOs cover interactive API, background jobs, event projection, connectors, and data-rights workflows.
 - Backup, restore, key availability, and projection rebuild are rehearsed.
 - Release and rollback are versioned and observable.
+- Compose deployment remains compatible with Docker, Podman, and Colima and is structured for later Kubernetes migration; PostgreSQL/application/shm settings are hardware-tuned only from measured container limits.
 
 ## 17. Build and supply-chain requirements
 
