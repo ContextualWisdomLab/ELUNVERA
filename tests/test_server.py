@@ -319,6 +319,24 @@ def test_post_rejects_invalid_or_non_object_json(
     assert payload == {"error": "request body must be a valid JSON object"}
 
 
+@pytest.mark.parametrize("action", [1, True, None, [], {}])
+def test_post_rejects_non_string_action_without_coercion(
+    http_server: tuple[str, int], action: Any
+) -> None:
+    """JSON action types must fail closed instead of becoming strings."""
+
+    body = json.dumps({"action": action}).encode("utf-8")
+    status, _, payload = request(
+        *http_server,
+        "POST",
+        "/api/queue/rel-001",
+        body=body,
+        headers={"Content-Type": "application/json"},
+    )
+    assert status == 400
+    assert json.loads(payload) == {"error": "action must be a string"}
+
+
 def test_main_constructs_loopback_server_and_serves(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
     observed: dict[str, Any] = {}
 
