@@ -111,6 +111,29 @@ def test_default_runtime_queue_starts_empty() -> None:
     assert serve.QUEUE.home() == []
 
 
+@pytest.mark.parametrize(
+    ("method", "path", "body"),
+    [
+        ("GET", "/", None),
+        ("HEAD", "/", None),
+        ("POST", "/api/queue/rel-001", b'{"action":"activate"}'),
+    ],
+)
+def test_untrusted_host_is_rejected_before_product_routing(
+    http_server: tuple[str, int], method: str, path: str, body: bytes | None
+) -> None:
+    status, _, response_body = request(
+        *http_server,
+        method,
+        path,
+        body=body,
+        headers={"Host": "attacker.invalid:8765", "Content-Type": "application/json"},
+    )
+    assert status == 421
+    if method == "HEAD":
+        assert response_body == b""
+
+
 def test_get_home_serves_html_without_cache(http_server: tuple[str, int]) -> None:
     status, headers, body = request(*http_server, "GET", "/")
     assert status == 200
@@ -216,11 +239,27 @@ def test_post_applies_valid_action(http_server: tuple[str, int]) -> None:
         "POST",
         "/api/queue/rel-001",
         body=body,
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json; charset=utf-8"},
     )
     assert status == 200
     assert headers["Cache-Control"] == "no-store"
     assert json.loads(payload)["status"] == "activated"
+
+
+def test_post_rejects_simple_cross_origin_content_type(
+    http_server: tuple[str, int],
+) -> None:
+    body = json.dumps({"action": "activate"}).encode("utf-8")
+    status, headers, payload = request(
+        *http_server,
+        "POST",
+        "/api/queue/rel-001",
+        body=body,
+        headers={"Content-Type": "text/plain"},
+    )
+    assert status == 415
+    assert headers["Content-Type"] == "application/json; charset=utf-8"
+    assert json.loads(payload) == {"error": "Content-Type must be application/json"}
 
 
 def test_post_returns_json_for_domain_error(http_server: tuple[str, int]) -> None:
@@ -237,7 +276,13 @@ def test_post_returns_json_for_domain_error(http_server: tuple[str, int]) -> Non
 
 
 def test_post_with_empty_body_returns_json_error(http_server: tuple[str, int]) -> None:
-    status, _, payload = request(*http_server, "POST", "/api/queue/rel-001", body=b"")
+    status, _, payload = request(
+        *http_server,
+        "POST",
+        "/api/queue/rel-001",
+        body=b"",
+        headers={"Content-Type": "application/json"},
+    )
     assert status == 400
     assert "unknown action" in json.loads(payload)["error"]
 
