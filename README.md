@@ -20,7 +20,7 @@ This repository uses GitHub flow: product pull requests target `main` and squash
 
 ELUNVERA owns relationship activation: a known relationship, its next move, why the move is due, and the action receipt. Neighbor integrations must use released contracts through ACLs; ELUNVERA must not copy source or query another product's database.
 
-See [ADR 0001](docs/adr/0001-relationship-activation-home.md), [PRD](docs/prd.md), [TRD](docs/trd.md), [ARCHITECTURE](ARCHITECTURE.md), and the [commercialization gap baseline](docs/product-technical-gap-baseline.md).
+See [ADR 0017](docs/adr/0017-relationship-activation-home.md), [PRD](docs/prd.md), [TRD](docs/trd.md), [ARCHITECTURE](ARCHITECTURE.md), and the [commercialization gap baseline](docs/product-technical-gap-baseline.md).
 
 ## Run the prototype surface
 
