@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-09-02T09:46:50Z",
+  "generated_at": "2026-09-02T09:59:00Z",
   "algorithm": "SHA-256",
   "self_excluded": true,
   "file_count": 58,
@@ -32,15 +32,15 @@
     },
     {
       "path": "AGENTS.md",
-      "sha256": "8d308fc7f687ad53e18aabc95cbb175a48450b8bfe502b29562f0afd9c950d13",
-      "size_bytes": 4022,
+      "sha256": "6c97e76c8ec1da4d30b82a1759755bae11018c132ca0fd29d7dfc803b55006a1",
+      "size_bytes": 4152,
       "line_count": 84
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "3f23ce77e9e61a330e53d1a8045a1b9828e142f886cc49dbf465f030dd189f53",
-      "size_bytes": 2273,
-      "line_count": 36
+      "sha256": "cd6a7037573811b5f9f42515f61e7d7d403b6824dd0f53d7e528079134eaa111",
+      "size_bytes": 2470,
+      "line_count": 37
     },
     {
       "path": "CLAUDE.md",
@@ -50,8 +50,8 @@
     },
     {
       "path": "CONTRIBUTING.md",
-      "sha256": "61698c99617bbdd3fab3150341899c967c647cf5aa5ec9756d9cf6fa99571e60",
-      "size_bytes": 1566,
+      "sha256": "5aee2d583ac082626a59cca4a832715ab6c9ef0e406ae48c7976887c71a74127",
+      "size_bytes": 1696,
       "line_count": 43
     },
     {
@@ -98,8 +98,8 @@
     },
     {
       "path": "docs/PRD.md",
-      "sha256": "8d074776a4cd2a8465daefb98751cf01ffd7ffcb1a328f8deea6362e728ab860",
-      "size_bytes": 22102,
+      "sha256": "95576c4d9b20bbc95ed355e5771f7b429d1346cd721b1224c007db1cabd4ae65",
+      "size_bytes": 22099,
       "line_count": 366
     },
     {
@@ -110,8 +110,8 @@
     },
     {
       "path": "docs/ROADMAP.md",
-      "sha256": "1a00a118088f908cce4449a1532f35231f383c7d415fff5136624bf970b926c7",
-      "size_bytes": 3418,
+      "sha256": "3e94efa42e1553428dd90c8bd6b298b114a1af8188faa0968f690b6dd4f9a486",
+      "size_bytes": 3415,
       "line_count": 84
     },
     {
@@ -320,14 +320,14 @@
     },
     {
       "path": "docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md",
-      "sha256": "ed833198cc2e5f7ebcc9f22b402f25dbdc647ce19657c4759c85299f0c37f0fc",
-      "size_bytes": 16009,
+      "sha256": "d453a94d4b5d2650aff49619da9733d057c5df80b241fe6a43ee0d95db99ebed",
+      "size_bytes": 16116,
       "line_count": 433
     },
     {
       "path": "docs/superpowers/specs/2026-08-27-elunvera-product-technical-baseline-design.md",
-      "sha256": "3ea901999f778ebe4aa5118024da82f4b72457814f8a715df7440ce41726cb5d",
-      "size_bytes": 4492,
+      "sha256": "45debe0ac12d4648d21c0a8fb53fb9b30b07188a6b8e3ce0c9e4e22ebc34d999",
+      "size_bytes": 4509,
       "line_count": 67
     },
     {
