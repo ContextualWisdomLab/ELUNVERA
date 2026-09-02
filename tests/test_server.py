@@ -162,6 +162,35 @@ def test_get_never_serves_repository_internal_files(
     assert status == 404
 
 
+@pytest.mark.parametrize(
+    ("path", "content_type"),
+    [
+        ("/", "text/html; charset=utf-8"),
+        ("/web/styles.css", "text/css; charset=utf-8"),
+        ("/web/bootstrap.js", "text/javascript; charset=utf-8"),
+        ("/api/queue", "application/json; charset=utf-8"),
+    ],
+)
+def test_head_mirrors_only_allowed_get_surface_without_a_body(
+    http_server: tuple[str, int], path: str, content_type: str
+) -> None:
+    status, headers, body = request(*http_server, "HEAD", path)
+    assert status == 200
+    assert headers["Content-Type"] == content_type
+    assert headers["Cache-Control"] == "no-store"
+    assert int(headers["Content-Length"]) >= 0
+    assert body == b""
+
+
+@pytest.mark.parametrize("path", ["/README.md", "/docs/prd.md", "/requirements-ci.txt"])
+def test_head_never_exposes_repository_internal_files(
+    http_server: tuple[str, int], path: str
+) -> None:
+    status, _, body = request(*http_server, "HEAD", path)
+    assert status == 404
+    assert body == b""
+
+
 def test_get_queue_returns_relationships(http_server: tuple[str, int]) -> None:
     status, headers, body = request(*http_server, "GET", "/api/queue")
     assert status == 200
