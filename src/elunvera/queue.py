@@ -59,6 +59,13 @@ class ActivationQueue:
         if not isinstance(relationship_id, str) or not relationship_id.strip():
             raise ValueError("relationship_id must be a non-empty string")
 
+        text_values: dict[str, str] = {}
+        for field_name in ("from_party", "to_party", "kind", "next_move", "why_now"):
+            field_value = raw[field_name]
+            if not isinstance(field_value, str) or not field_value.strip():
+                raise ValueError(f"{field_name} must be a non-empty string")
+            text_values[field_name] = field_value
+
         due = raw["due"]
         if not isinstance(due, str) or not due:
             raise ValueError("due must be a non-empty ISO date string")
@@ -71,16 +78,23 @@ class ActivationQueue:
         if not isinstance(status, str) or status not in VALID_STATUSES:
             raise ValueError("status must be a known activation status")
 
+        lineage_cite: str | None = None
+        if "lineage_cite" in raw:
+            raw_lineage_cite = raw["lineage_cite"]
+            if not isinstance(raw_lineage_cite, str) or not raw_lineage_cite.strip():
+                raise ValueError("lineage_cite must be a non-empty string when present")
+            lineage_cite = raw_lineage_cite
+
         return Relationship(
             relationship_id=relationship_id,
-            from_party=str(raw["from_party"]),
-            to_party=str(raw["to_party"]),
-            kind=str(raw["kind"]),
-            next_move=str(raw["next_move"]),
+            from_party=text_values["from_party"],
+            to_party=text_values["to_party"],
+            kind=text_values["kind"],
+            next_move=text_values["next_move"],
             due=due,
-            why_now=str(raw["why_now"]),
+            why_now=text_values["why_now"],
             status=status,
-            lineage_cite=(str(raw["lineage_cite"]) if raw.get("lineage_cite") else None),
+            lineage_cite=lineage_cite,
         )
 
     def home(self) -> list[Relationship]:
