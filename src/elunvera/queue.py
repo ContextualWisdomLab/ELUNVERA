@@ -12,6 +12,8 @@ from typing import Any, Iterable, Mapping
 
 ALLOWED_KINDS = frozenset({"partner", "advisor", "account-contact", "collaborator"})
 HOME_STATUSES = frozenset({"due", "rescheduled"})
+TERMINAL_STATUSES = frozenset({"activated", "dismissed"})
+VALID_STATUSES = HOME_STATUSES | TERMINAL_STATUSES
 ACTIONS = frozenset({"activate", "reschedule", "dismiss"})
 
 
@@ -56,15 +58,28 @@ class ActivationQueue:
         relationship_id = raw["relationship_id"]
         if not isinstance(relationship_id, str) or not relationship_id.strip():
             raise ValueError("relationship_id must be a non-empty string")
+
+        due = raw["due"]
+        if not isinstance(due, str) or not due:
+            raise ValueError("due must be a non-empty ISO date string")
+        try:
+            date.fromisoformat(due)
+        except ValueError as exc:
+            raise ValueError("due must be a valid ISO date") from exc
+
+        status = raw.get("status", "due")
+        if not isinstance(status, str) or status not in VALID_STATUSES:
+            raise ValueError("status must be a known activation status")
+
         return Relationship(
             relationship_id=relationship_id,
             from_party=str(raw["from_party"]),
             to_party=str(raw["to_party"]),
             kind=str(raw["kind"]),
             next_move=str(raw["next_move"]),
-            due=str(raw["due"]),
+            due=due,
             why_now=str(raw["why_now"]),
-            status=str(raw.get("status", "due")),
+            status=status,
             lineage_cite=(str(raw["lineage_cite"]) if raw.get("lineage_cite") else None),
         )
 
@@ -94,6 +109,10 @@ class ActivationQueue:
         if action not in ACTIONS:
             raise ValueError(f"unknown action {action!r}")
         current = self.get(relationship_id)
+        if current.status in TERMINAL_STATUSES:
+            raise ValueError(
+                f"relationship {relationship_id} is terminal ({current.status})"
+            )
         if action == "activate":
             updated = Relationship(**{**current.to_dict(), "status": "activated"})
         elif action == "dismiss":
