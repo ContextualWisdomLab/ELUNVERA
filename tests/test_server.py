@@ -129,6 +129,8 @@ def test_get_index_alias_serves_actionable_accessible_empty_state(
     assert b"No relationships are available yet." in body
     assert b'aria-live="polite"' in body
     assert b'role="status"' in body
+    for internal_name in (b"LineageWeave", b"RankWeave", b"Ontology/SDP", b"Orgmetra"):
+        assert internal_name not in body
 
 
 def test_get_queue_returns_relationships(http_server: tuple[str, int]) -> None:
