@@ -71,7 +71,7 @@ Update `CHANGELOG.md`, `docs/product-technical-gap-baseline.md`, affected ADRs, 
 
 ## Pull request operation
 
-Use `develop` as the base branch unless an explicitly approved stack requires another feature branch.
+Use canonical protected `main` as the ordinary product base. A dependency stack may target its verified prerequisite feature branch while that prerequisite remains open; it must return to `main` once the prerequisite is integrated.
 
 Before commit or push:
 
