@@ -1,18 +1,18 @@
 # ELUNVERA Product–Technical Gap Baseline
 
-- **Baseline version:** 0.2
+- **Baseline version:** 0.3
 - **Observed date:** 2026-09-02
 - **Repository:** `ContextualWisdomLab/ELUNVERA`
-- **Target integration branch:** `develop`
-- **Evidence scope:** repository metadata plus this documentation and source-license change
+- **Target integration branch:** `main`
+- **Evidence scope:** live repository metadata plus this documentation and source-license change
 
 ## 1. Executive status
 
-ELUNVERA is a newly created public repository. Before this baseline, it contained no branches, commits, runtime, database migrations, user interface, release, checks, or production evidence. This change establishes product and technical design contracts, repository validation, a public documentation source, and an Apache-2.0 grant for ContextualWisdomLab-authored source/documentation only.
+ELUNVERA is a newly created public, non-fork repository whose protected `main` branch remains at the bootstrap revision while this Draft foundation is reviewed. The foundation branch establishes product and technical design contracts, repository validation, a public documentation source, and a proposed Apache-2.0 grant for ContextualWisdomLab-authored source/documentation only. It still contains no production runtime, database migration, customer deployment, benchmark, or immutable release.
 
 **Current honest classification:** `design baseline / pre-implementation`.
 
-The repository must not be described as alpha, beta, production-ready, secure, compliant, scalable, accessible, or commercially validated until the corresponding implementation and evidence exist. The repository source license permits commercial use but is not evidence that a sellable product or a future dependency set is commercially ready.
+The repository must not be described as alpha, beta, production-ready, secure, compliant, scalable, accessible, or commercially validated until the corresponding implementation and evidence exist. The proposed repository source license permits commercial use if integrated as written, but is not evidence that a sellable product or a future dependency set is commercially ready.
 
 ## 2. Product definition established by this baseline
 
@@ -40,10 +40,15 @@ It deliberately does not own identity, email/calendar/file hosting, generalized 
 
 ### G-001 Repository governance
 
-**Gap:** no committed `develop` branch, ruleset, CODEOWNERS, required checks, labels, or release policy.
-**Risk:** changes can bypass current-head review and the requested PR flow.
-**Action:** establish bootstrap commit, `develop`, branch ruleset, independent approval, unresolved-thread protection, required checks, update-branch, squash merge, and branch deletion policy.
-**Exit evidence:** ruleset API snapshot and tested PR.
+**Current evidence:** `main` and `develop` exist at the same bootstrap revision, but `main` is the canonical protected integration branch. The organization default-branch ruleset applies ordinary review protection, including qualifying approval and unresolved-thread protection. This Draft PR now targets `main`; its permanent document-contract workflow and CodeRabbit configuration were repaired to include `main` after the retarget.
+
+**Remaining gap:** exact-head required workflow completion, current semantic review, release-policy evidence, and any repository-specific ownership controls not supplied by the organization baseline remain unproven. `develop` is not a release authority.
+
+**Risk:** stale branch assumptions or predecessor-head evidence can bypass the intended integration contract even when organization protection exists.
+
+**Action:** keep `main` canonical; require exact-head document/contract and organization checks plus qualifying independent review; preserve the ruleset rather than weakening it; add repository-specific ownership/release controls only when their responsibility is not already centrally supplied.
+
+**Exit evidence:** live ruleset snapshot plus a successful ordinary protected PR on the unchanged exact head.
 
 ### G-002 Executable Rust foundation
 
@@ -110,12 +115,12 @@ It deliberately does not own identity, email/calendar/file hosting, generalized 
 
 ### G-011 Commercial and legal readiness
 
-**Resolved slice:** ContextualWisdomLab-authored ELUNVERA source and documentation now have an explicit Apache License 2.0 repository grant under accepted ADR-0013. The license permits commercial use and distribution and keeps trademark and third-party rights separate.
+**Proposed slice on this Draft branch:** ContextualWisdomLab-authored ELUNVERA source and documentation are proposed for an explicit Apache License 2.0 repository grant under ADR-0013. The root `LICENSE` and documentation express that boundary, but ADR-0013 remains `Proposed` until ordinary protected-branch integration preserves the decision and its validation evidence. The grant does not imply trademark registration and does not relicense third-party material.
 
 **Remaining gap:** no trademark registration evidence, terms, DPA, support policy, pricing, entitlement, billing integration, or dependency/asset license inventory for a future executable distribution.
 **Risk:** a licensed public design repository is still not a sellable or legally complete product, and future imported components may carry independent obligations.
-**Action:** complete trademark/legal review, product terms/DPA/support model, dependency and asset provenance inventory, deployment/support offer, and Billing Control Plane integration after core product evidence exists.
-**Exit evidence:** reviewed commercial/legal package plus exact distributable dependency/SBOM/license/attribution evidence.
+**Action:** after foundation integration, complete trademark/legal review, product terms/DPA/support model, dependency and asset provenance inventory, deployment/support offer, and Billing Control Plane integration after core product evidence exists.
+**Exit evidence:** protected-main license/ADR integration plus reviewed commercial/legal package and exact distributable dependency/SBOM/license/attribution evidence.
 
 ### G-012 Product validation
 
@@ -127,7 +132,7 @@ It deliberately does not own identity, email/calendar/file hosting, generalized 
 ## 5. Highest-leverage implementation order
 
 ```text
-repository governance
+canonical-main governance and foundation integration
 → identity and tenant boundary
 → PostgreSQL account/party/relationship kernel
 → audit, outbox, idempotency, temporal APIs
@@ -141,4 +146,4 @@ repository governance
 
 ## 6. Release truth
 
-The documentation baseline closes the absence of a coherent product definition, implementation contract, public repository source-license decision, and source-documentation navigation. It closes none of the runtime, security, privacy, accessibility, model-validity, scalability, operational, broader legal/commercial, or market-validation gaps listed above. No release exists until an exact protected executable source and its required artifact, dependency, SBOM, provenance, review, and operational evidence are independently established.
+This Draft documentation baseline addresses the absence of a coherent product definition, implementation contract, proposed public repository source-license decision, and source-documentation navigation. It closes none of the runtime, security, privacy, accessibility, model-validity, scalability, operational, broader legal/commercial, or market-validation gaps listed above, and it does not mark a decision Accepted merely because it exists on an unmerged branch. No release exists until an exact protected executable source and its required artifact, dependency, SBOM, provenance, review, and operational evidence are independently established.
