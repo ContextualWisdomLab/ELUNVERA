@@ -24,6 +24,8 @@ The format follows Keep a Changelog principles, and versioning will begin when t
 - Corrected AsyncAPI operations to publish ELUNVERA domain events and required classification/schema metadata.
 - Added explicit `recorded_at` payload fields so outbox publication delay cannot corrupt bitemporal reconstruction.
 - Removed one-shot reconciliation/review-repair workflows and script from the publishable candidate before final manifest sealing.
+- Retargeted the Draft foundation to canonical protected `main`, aligned document-contract and review automation with that base, and corrected stale `develop` navigation/governance claims.
+- Returned ADR-0013 to `Proposed` while the foundation remains unmerged; protected integration is required before the decision may be marked `Accepted`.
 
 ### Security
 
