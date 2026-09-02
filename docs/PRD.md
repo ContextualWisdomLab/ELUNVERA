@@ -1,8 +1,8 @@
 # ELUNVERA Product Requirements Document
 
-- **Document version:** 0.1
+- **Document version:** 0.2
 - **Status:** Proposed product baseline
-- **Date:** 2026-08-27
+- **Date:** 2026-09-02
 - **Product:** ELUNVERA
 - **Repository:** `ContextualWisdomLab/ELUNVERA`
 - **Primary branch:** `main`
@@ -83,7 +83,7 @@ Every alert, empty state, error, and AI response explains what happened, why it 
 
 ### Initial deployment profile
 
-The first commercial profile is a multi-tenant or customer-isolated enterprise SaaS deployment for Korean and international B2B account teams, with Korean and English user experiences and optional customer-controlled connectors.
+The first commercial profile is a multi-tenant or customer-isolated enterprise SaaS deployment for Korean and international B2B account teams. Korean, English, Japanese, Chinese, Vietnamese, Spanish, German, and French ship as first-release interface locales, with optional customer-controlled connectors.
 
 ## 6. Personas
 
@@ -146,7 +146,8 @@ When a person requests access, export, correction, restriction, or deletion, ide
 - immutable audit and transactional outbox;
 - deterministic CSV/JSON import and export;
 - account search and duplicate-candidate workflow;
-- Korean and English interface baseline;
+- Korean, English, Japanese, Chinese, Vietnamese, Spanish, German, and French interface baseline;
+- DB-backed, versioned translation resources with review, approval, deployment, rollback, and screen-key-scoped delivery;
 - account overview, relationship map, timeline, opportunity workspace, and action queue.
 
 ### 8.2 P1 — Integrated context
@@ -262,8 +263,8 @@ ELUNVERA will not initially:
 
 ### Performance
 
-- **NFR-010:** Core account overview p95 server response time shall be under 500 ms for the release benchmark profile, excluding downstream AI calls.
-- **NFR-011:** Search p95 shall be under 1.5 seconds for the release benchmark profile.
+- **NFR-010:** Every buyer-facing page shall achieve realistic end-to-end p95 ≤ 20 ms under the declared release benchmark profile. The measurement must include the page request, product-owned data access, rendering, and ready-to-interact boundary; it may not be met by shrinking datasets, excluding slow samples, or using an unrealistic warmup. Long-running AI or connector work remains an explicit asynchronous job and may not block page readiness.
+- **NFR-011:** Search-backed pages are subject to the same p95 ≤ 20 ms page target. Deep or unbounded exploration that cannot satisfy the interactive budget shall be paginated or moved to an explicit asynchronous workflow rather than weakening the page SLO.
 - **NFR-012:** Long-running exports, imports, model runs, and connector synchronizations shall use durable asynchronous jobs with status and cancellation.
 - **NFR-013:** Product UI shall never wait synchronously for an LLM workflow to complete.
 
@@ -293,7 +294,7 @@ These are acceptance targets, not current performance claims.
 
 - **NFR-030:** Web experiences shall conform to WCAG 2.2 AA.
 - **NFR-031:** Every graph, chart, and timeline shall have an exact-value table and export representation.
-- **NFR-032:** Korean and English shall ship together, with locale-safe dates, names, addresses, number formats, and sorting.
+- **NFR-032:** Korean, English, Japanese, Chinese, Vietnamese, Spanish, German, and French shall ship together, with locale-safe dates, names, addresses, number formats, sorting, font fallback, CJK behavior, and expansion-safe layouts. Translation authority shall use DB-backed, versioned translation resources with review, approval, deployment, and rollback; server/native clients fetch and cache only screen-scoped keys rather than downloading a full browser catalog.
 - **NFR-033:** Customer-facing copy shall describe the user’s next action rather than internal implementation boundaries.
 
 ### Quality
@@ -354,7 +355,9 @@ A first production release may be proposed only when:
 - current-head tests and security checks pass;
 - tenant isolation is proven at API and database layers;
 - migrations, rollback, backup, and restore are rehearsed;
-- exact user journeys pass in Korean and English;
+- exact user journeys pass in Korean, English, Japanese, Chinese, Vietnamese, Spanish, German, and French;
+- every buyer-facing page meets the declared realistic k6 p95 ≤ 20 ms release profile without excluded slow samples or synthetic production traffic;
+- translation-resource review, approval, cache invalidation, deployment, and rollback are exercised against DB-backed versioned resources;
 - accessibility journeys pass with keyboard and screen-reader evidence;
 - no critical or high unaccepted security finding remains;
 - every numerical model in the release has documented validation and uncertainty;
