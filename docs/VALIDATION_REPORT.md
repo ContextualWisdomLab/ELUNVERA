@@ -1,7 +1,7 @@
 # ELUNVERA Documentation Baseline Validation Report
 
-- **Validation date:** 2026-08-27
-- **Scope:** Documentation, contracts, schemas, local links, and artifact integrity
+- **Validation date:** 2026-09-02
+- **Scope:** Documentation, contracts, schemas, local links, source licensing, and artifact integrity
 - **Runtime claim:** None
 
 ## Results
@@ -13,7 +13,7 @@
 | Markdown local-link resolution | Pass |
 | Markdown code-fence balance | Pass |
 | JSON parsing | Pass |
-| JSON Schema Draft 2020-12 metaschema validation | Pass |
+| JSON Schema Draft 2020-12 declaration and structural invariant validation | Pass |
 | YAML parsing | Pass |
 | OpenAPI version and unique `operationId` structure | Pass |
 | Narrative/OpenAPI operation parity for the contract-bearing P0 surface | Pass |
@@ -23,20 +23,22 @@
 | Explicit bitemporal `recorded_at` in domain-event payloads | Pass |
 | Placeholder-token scan | Pass |
 | Obvious database two-word `snake_case` declaration check | Pass |
-| Manifest SHA-256 verification | Pass after manifest generation |
+| Apache-2.0 repository source-license boundary | Pass |
+| Manifest SHA-256 verification | Pass after final manifest resealing |
 
 ## Inventory
 
-- Repository files excluding `.git`: **55**
-- Manifest entries excluding `manifest.json`: **54**
+- Tracked repository files including `manifest.json`: **59**
+- Manifest entries excluding `manifest.json`: **58**
 - ADRs excluding index: **16**
 - Primary product and technical documents: PRD, TRD, Architecture, Data Model, API Contract, Security, Privacy, Threat Model, Test Strategy, Operability, UX, Roadmap, Gap Baseline
 - Contract artifacts: OpenAPI 3.2.0, AsyncAPI 3.1.0, two JSON Schema Draft 2020-12 event payloads
+- Repository source grant: Apache License 2.0 for ContextualWisdomLab-authored source/documentation; trademark and third-party rights remain separate
 
 ## Commands executed
 
 ```text
-Python JSON and JSON Schema validation
+Python JSON parsing and Draft 2020-12 declaration/invariant validation
 PyYAML parsing
 OpenAPI/AsyncAPI structural and cross-contract coherence checks
 Markdown relative-link and fence checks
@@ -51,3 +53,4 @@ Git diff and branch-history inspection
 - No Figma file or production interface exists.
 - OpenAPI and AsyncAPI were structurally validated in this environment; certification or full third-party conformance is not claimed.
 - Research and standards traceability informs the design but does not establish legal compliance, certification, or product effectiveness.
+- The Apache-2.0 repository grant does not establish trademark registration or commercial compatibility of future imported dependencies, source, assets, data, models, or services; those require separate provenance review.
