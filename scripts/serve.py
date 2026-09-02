@@ -50,11 +50,24 @@ class Handler(SimpleHTTPRequestHandler):
         if asset is not None:
             return self._file(*asset)
         if parsed.path == "/api/queue":
-            body = json.dumps(
-                {"relationships": [row.to_dict() for row in QUEUE.home()]},
-                ensure_ascii=False,
-            ).encode("utf-8")
+            body = self._queue_body()
             return self._bytes(200, "application/json; charset=utf-8", body)
+        self.send_error(404)
+
+    def do_HEAD(self) -> None:  # noqa: N802
+        """Mirror the allowlisted GET surface without exposing repository files."""
+
+        parsed = urlparse(self.path)
+        if parsed.path in {"/", "/index.html"}:
+            return self._head_file(
+                ROOT / "web" / "index.html", "text/html; charset=utf-8"
+            )
+        asset = WEB_ASSETS.get(parsed.path)
+        if asset is not None:
+            return self._head_file(*asset)
+        if parsed.path == "/api/queue":
+            body = self._queue_body()
+            return self._headers(200, "application/json; charset=utf-8", len(body))
         self.send_error(404)
 
     def do_POST(self) -> None:  # noqa: N802
@@ -100,20 +113,38 @@ class Handler(SimpleHTTPRequestHandler):
             json.dumps(row.to_dict(), ensure_ascii=False).encode(),
         )
 
+    def _queue_body(self) -> bytes:
+        """Serialize the current queue projection for GET/HEAD metadata parity."""
+
+        return json.dumps(
+            {"relationships": [row.to_dict() for row in QUEUE.home()]},
+            ensure_ascii=False,
+        ).encode("utf-8")
+
     def _file(self, path: Path, content_type: str) -> None:
         """Write one explicitly selected product asset with no-store caching."""
 
         data = path.read_bytes()
         self._bytes(200, content_type, data)
 
-    def _bytes(self, code: int, content_type: str, body: bytes) -> None:
-        """Write one bounded response with explicit type, length, and cache policy."""
+    def _head_file(self, path: Path, content_type: str) -> None:
+        """Write HEAD metadata for one explicitly selected product asset."""
+
+        self._headers(200, content_type, path.stat().st_size)
+
+    def _headers(self, code: int, content_type: str, content_length: int) -> None:
+        """Write response headers shared by body-bearing and HEAD responses."""
 
         self.send_response(code)
         self.send_header("Content-Type", content_type)
-        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Length", str(content_length))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
+
+    def _bytes(self, code: int, content_type: str, body: bytes) -> None:
+        """Write one bounded response with explicit type, length, and cache policy."""
+
+        self._headers(code, content_type, len(body))
         self.wfile.write(body)
 
 
