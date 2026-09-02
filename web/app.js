@@ -34,9 +34,9 @@ export function createActivationApp({
         <p class="move">${escapeHtml(row.next_move)}</p>
         <p class="why">${escapeHtml(row.why_now)}</p>
         <div class="actions">
-          <button data-id="${escapeHtml(row.id)}" data-action="activate">Activate</button>
-          <button class="secondary" data-id="${escapeHtml(row.id)}" data-action="reschedule">Reschedule +7d</button>
-          <button class="secondary" data-id="${escapeHtml(row.id)}" data-action="dismiss">Dismiss</button>
+          <button data-relationship-id="${escapeHtml(row.relationship_id)}" data-action="activate">Activate</button>
+          <button class="secondary" data-relationship-id="${escapeHtml(row.relationship_id)}" data-action="reschedule">Reschedule +7d</button>
+          <button class="secondary" data-relationship-id="${escapeHtml(row.relationship_id)}" data-action="dismiss">Dismiss</button>
         </div>`;
       queueEl.appendChild(li);
     }
@@ -46,7 +46,7 @@ export function createActivationApp({
     const btn = event.target.closest("button");
     if (!btn) return;
     const action = btn.dataset.action;
-    const id = btn.dataset.id;
+    const relationshipId = btn.dataset.relationshipId;
     const body = { action };
     if (action === "reschedule") {
       const due = now();
@@ -55,11 +55,14 @@ export function createActivationApp({
     }
     btn.disabled = true;
     try {
-      const res = await fetchImpl(`/api/queue/${encodeURIComponent(id)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
+      const res = await fetchImpl(
+        `/api/queue/${encodeURIComponent(relationshipId)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      );
       if (!res.ok) {
         statusEl.hidden = false;
         statusEl.textContent = "Could not record that move.";
