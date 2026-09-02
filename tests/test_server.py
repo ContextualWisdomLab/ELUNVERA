@@ -18,10 +18,43 @@ import pytest
 
 from scripts import serve
 
+TEST_RELATIONSHIPS = [
+    {
+        "id": "rel-001",
+        "from_party": "Account Alpha",
+        "to_party": "Contact One",
+        "kind": "partner",
+        "next_move": "Confirm the next review date",
+        "due": "2026-08-28",
+        "why_now": "A test-only follow-up is due.",
+        "status": "due",
+    },
+    {
+        "id": "rel-002",
+        "from_party": "Account Beta",
+        "to_party": "Contact Two",
+        "kind": "advisor",
+        "next_move": "Share the bounded product note",
+        "due": "2026-08-29",
+        "why_now": "A test-only advisory review is scheduled.",
+        "status": "due",
+    },
+    {
+        "id": "rel-003",
+        "from_party": "Account Gamma",
+        "to_party": "Contact Three",
+        "kind": "account-contact",
+        "next_move": "Confirm the next check-in owner",
+        "due": "2026-08-27",
+        "why_now": "A test-only check-in is overdue.",
+        "status": "due",
+    },
+]
+
 
 @pytest.fixture
 def http_server(monkeypatch: pytest.MonkeyPatch) -> Iterator[tuple[str, int]]:
-    monkeypatch.setattr(serve, "QUEUE", serve.ActivationQueue(serve.SEED["relationships"]))
+    monkeypatch.setattr(serve, "QUEUE", serve.ActivationQueue(TEST_RELATIONSHIPS))
     server = ThreadingHTTPServer(("127.0.0.1", 0), serve.Handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
@@ -70,6 +103,12 @@ def post_raw(host: str, port: int, content_length: str, body: bytes) -> tuple[in
     head, payload = bytes(response).split(b"\r\n\r\n", 1)
     status = int(head.splitlines()[0].split()[1])
     return status, json.loads(payload.decode("utf-8"))
+
+
+def test_default_runtime_queue_starts_empty() -> None:
+    """Production startup must never consume bundled synthetic/demo records."""
+
+    assert serve.QUEUE.home() == []
 
 
 def test_get_home_serves_html_without_cache(http_server: tuple[str, int]) -> None:
