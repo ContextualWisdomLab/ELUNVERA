@@ -1,18 +1,18 @@
 # ELUNVERA Product–Technical Gap Baseline
 
-- **Baseline version:** 0.1
-- **Observed date:** 2026-08-27
+- **Baseline version:** 0.2
+- **Observed date:** 2026-09-02
 - **Repository:** `ContextualWisdomLab/ELUNVERA`
 - **Target integration branch:** `develop`
-- **Evidence scope:** repository metadata plus this documentation change
+- **Evidence scope:** repository metadata plus this documentation and source-license change
 
 ## 1. Executive status
 
-ELUNVERA is a newly created public repository. Before this baseline, it contained no branches, commits, runtime, database migrations, user interface, release, checks, or production evidence. This change establishes product and technical design contracts only.
+ELUNVERA is a newly created public repository. Before this baseline, it contained no branches, commits, runtime, database migrations, user interface, release, checks, or production evidence. This change establishes product and technical design contracts, repository validation, a public documentation source, and an Apache-2.0 grant for ContextualWisdomLab-authored source/documentation only.
 
 **Current honest classification:** `design baseline / pre-implementation`.
 
-The repository must not be described as alpha, beta, production-ready, secure, compliant, scalable, accessible, or commercially validated until the corresponding implementation and evidence exist.
+The repository must not be described as alpha, beta, production-ready, secure, compliant, scalable, accessible, or commercially validated until the corresponding implementation and evidence exist. The repository source license permits commercial use but is not evidence that a sellable product or a future dependency set is commercially ready.
 
 ## 2. Product definition established by this baseline
 
@@ -89,9 +89,9 @@ It deliberately does not own identity, email/calendar/file hosting, generalized 
 
 ### G-008 Security and supply chain
 
-**Gap:** no CI, SAST, secret scan, dependency review, SBOM, provenance, signatures, or penetration test.
-**Risk:** no trustworthy artifact exists.
-**Action:** use central `.github` reusable workflows, exact pins, minimal permissions, and signed release pipeline.
+**Gap:** no executable-product CI, SAST, secret scan, dependency review, SBOM, provenance, signatures, or penetration test evidence yet.
+**Risk:** no trustworthy runtime artifact exists.
+**Action:** use central `.github` reusable workflows, exact pins, minimal permissions, and a signed release pipeline as executable code is introduced.
 **Exit evidence:** current-head checks and signed release candidate.
 
 ### G-009 Operability
@@ -110,10 +110,12 @@ It deliberately does not own identity, email/calendar/file hosting, generalized 
 
 ### G-011 Commercial and legal readiness
 
-**Gap:** no software license, trademark registration, terms, DPA, support policy, pricing, entitlement, or billing integration.
-**Risk:** a public design repository is not a sellable product.
-**Action:** decide license, complete trademark/legal review, define deployment/support and Billing Control Plane integration after core product evidence.
-**Exit evidence:** approved legal/commercial package.
+**Resolved slice:** ContextualWisdomLab-authored ELUNVERA source and documentation now have an explicit Apache License 2.0 repository grant under accepted ADR-0013. The license permits commercial use and distribution and keeps trademark and third-party rights separate.
+
+**Remaining gap:** no trademark registration evidence, terms, DPA, support policy, pricing, entitlement, billing integration, or dependency/asset license inventory for a future executable distribution.
+**Risk:** a licensed public design repository is still not a sellable or legally complete product, and future imported components may carry independent obligations.
+**Action:** complete trademark/legal review, product terms/DPA/support model, dependency and asset provenance inventory, deployment/support offer, and Billing Control Plane integration after core product evidence exists.
+**Exit evidence:** reviewed commercial/legal package plus exact distributable dependency/SBOM/license/attribution evidence.
 
 ### G-012 Product validation
 
@@ -139,4 +141,4 @@ repository governance
 
 ## 6. Release truth
 
-The documentation baseline closes the absence of a coherent product definition and implementation contract. It closes none of the runtime, security, privacy, accessibility, model-validity, scalability, operational, legal, or market-validation gaps listed above.
+The documentation baseline closes the absence of a coherent product definition, implementation contract, public repository source-license decision, and source-documentation navigation. It closes none of the runtime, security, privacy, accessibility, model-validity, scalability, operational, broader legal/commercial, or market-validation gaps listed above. No release exists until an exact protected executable source and its required artifact, dependency, SBOM, provenance, review, and operational evidence are independently established.
