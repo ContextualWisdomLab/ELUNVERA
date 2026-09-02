@@ -5,7 +5,7 @@
 - **Date:** 2026-08-27
 - **Product:** ELUNVERA
 - **Repository:** `ContextualWisdomLab/ELUNVERA`
-- **Primary branch:** `develop`
+- **Primary branch:** `main`
 
 ## 1. Executive summary
 
