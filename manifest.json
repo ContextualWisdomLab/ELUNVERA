@@ -1,11 +1,17 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-08-29T12:50:00Z",
+  "generated_at": "2026-09-02T09:46:50Z",
   "algorithm": "SHA-256",
   "self_excluded": true,
-  "file_count": 55,
+  "file_count": 58,
   "files": [
+    {
+      "path": ".coderabbit.yaml",
+      "sha256": "efe46b993fae145eeaa2b2fb2cf0c302000c6373e5246c8e54bf330d636f4e2b",
+      "size_bytes": 112,
+      "line_count": 7
+    },
     {
       "path": ".cwl/data-management.yaml",
       "sha256": "28a06ccaf397a9da80f49ca09742a8cd18091c96c0ecb0f463192dfcea895671",
@@ -20,9 +26,9 @@
     },
     {
       "path": ".github/workflows/document-contracts.yml",
-      "sha256": "4753940663837d4326b3954a300545738ec5a16ef72bd9e6cfcadc6ab2ea00f1",
-      "size_bytes": 7127,
-      "line_count": 160
+      "sha256": "276d5f02fa4f0f2d93098dd4f421cb91f0aee0925808c6f6925840ef07bee2c5",
+      "size_bytes": 7137,
+      "line_count": 161
     },
     {
       "path": "AGENTS.md",
@@ -32,9 +38,9 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "e156a07dcc8e31ab59c8145a192eb1c2edaca9d2f2ffd672f6e9c339b704e893",
-      "size_bytes": 1583,
-      "line_count": 31
+      "sha256": "3f23ce77e9e61a330e53d1a8045a1b9828e142f886cc49dbf465f030dd189f53",
+      "size_bytes": 2273,
+      "line_count": 36
     },
     {
       "path": "CLAUDE.md",
@@ -49,10 +55,16 @@
       "line_count": 43
     },
     {
+      "path": "LICENSE",
+      "sha256": "b7fa79459ac09645fd5bed5363852ba8759fa6deeb972d02f09fb0dc50fef586",
+      "size_bytes": 11290,
+      "line_count": 192
+    },
+    {
       "path": "README.md",
-      "sha256": "9d355be62b9bf5b8e90a6bfa204db40abbf5fd2d9307733501172983c465546c",
-      "size_bytes": 4974,
-      "line_count": 81
+      "sha256": "3c65f74b492dfe6ae8e06eedd23a5ffde397d06b751d10a29f464c0621b77b04",
+      "size_bytes": 5471,
+      "line_count": 84
     },
     {
       "path": "SECURITY.md",
@@ -164,9 +176,9 @@
     },
     {
       "path": "docs/VALIDATION_REPORT.md",
-      "sha256": "c5a40ac8c25e8beea60a665f943f15ae4dfe12f60a96258b7a74047731fa2f82",
-      "size_bytes": 2368,
-      "line_count": 53
+      "sha256": "71b913ecac5bea2f94d10933c959bff0c0ba28110ee3be087a8578db08391ab8",
+      "size_bytes": 2895,
+      "line_count": 56
     },
     {
       "path": "docs/WIREFRAMES.md",
@@ -248,9 +260,9 @@
     },
     {
       "path": "docs/adr/0013-brand-and-license.md",
-      "sha256": "9b54fd5c0fc4de13f647e1c8955c69c6cffd90766c8dd946e1d34322a7adc0de",
-      "size_bytes": 923,
-      "line_count": 21
+      "sha256": "e27ab7029b52981abab21aacb1ed5fec8e458e1ff40163c4ab504c5426544b86",
+      "size_bytes": 3160,
+      "line_count": 32
     },
     {
       "path": "docs/adr/0014-ux-design-system.md",
@@ -272,8 +284,8 @@
     },
     {
       "path": "docs/adr/README.md",
-      "sha256": "b54b4bc29ff5a2d385c23bd7049bc64e1cf04277147afa70057b20ba8b5f46e1",
-      "size_bytes": 1806,
+      "sha256": "ebd75a0c60d4dd3bd13f3135b3c81732013d8ace8ccc263b9ca7703fa406f5aa",
+      "size_bytes": 1818,
       "line_count": 22
     },
     {
@@ -295,10 +307,16 @@
       "line_count": 22
     },
     {
+      "path": "docs/index.md",
+      "sha256": "d7641f7c026b0bba9c7c8539b68c729517aade17de6af3656c5bf2942fded9a3",
+      "size_bytes": 4611,
+      "line_count": 49
+    },
+    {
       "path": "docs/product-technical-gap-baseline.md",
-      "sha256": "39e5adf829a46271ce3939cbf2259108b25d0ff39c26128c38229a2f808f8301",
-      "size_bytes": 8851,
-      "line_count": 142
+      "sha256": "f2a2012b9f73eeaaa5d0052eb1328d56cedd23a937acb19850e76f515fa0dccd",
+      "size_bytes": 11455,
+      "line_count": 149
     },
     {
       "path": "docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md",
