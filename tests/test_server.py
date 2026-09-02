@@ -133,6 +133,35 @@ def test_get_index_alias_serves_actionable_accessible_empty_state(
         assert internal_name not in body
 
 
+@pytest.mark.parametrize(
+    ("path", "content_type", "marker"),
+    [
+        ("/web/styles.css", "text/css; charset=utf-8", b"body"),
+        ("/web/bootstrap.js", "text/javascript; charset=utf-8", b"createActivationApp"),
+        ("/web/app.js", "text/javascript; charset=utf-8", b"createActivationApp"),
+    ],
+)
+def test_get_serves_only_required_web_assets(
+    http_server: tuple[str, int], path: str, content_type: str, marker: bytes
+) -> None:
+    status, headers, body = request(*http_server, "GET", path)
+    assert status == 200
+    assert headers["Content-Type"] == content_type
+    assert headers["Cache-Control"] == "no-store"
+    assert marker in body
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["/README.md", "/docs/prd.md", "/requirements-ci.txt", "/.github/workflows/ci.yml"],
+)
+def test_get_never_serves_repository_internal_files(
+    http_server: tuple[str, int], path: str
+) -> None:
+    status, _, _ = request(*http_server, "GET", path)
+    assert status == 404
+
+
 def test_get_queue_returns_relationships(http_server: tuple[str, int]) -> None:
     status, headers, body = request(*http_server, "GET", "/api/queue")
     assert status == 200
@@ -141,7 +170,7 @@ def test_get_queue_returns_relationships(http_server: tuple[str, int]) -> None:
     assert payload["relationships"][0]["id"] == "rel-003"
 
 
-def test_unknown_get_delegates_to_static_handler(http_server: tuple[str, int]) -> None:
+def test_unknown_get_returns_404(http_server: tuple[str, int]) -> None:
     status, _, _ = request(*http_server, "GET", "/does-not-exist")
     assert status == 404
 
