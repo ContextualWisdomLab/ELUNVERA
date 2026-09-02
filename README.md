@@ -2,32 +2,33 @@
 
 > **Every Link, Understood. Every Relationship, Activated.**
 
-ELUNVERA is ContextualWisdomLab's **relationship-activation** product. It keeps the next move on a known relationship visible and actionable.
+ELUNVERA is ContextualWisdomLab's relationship-activation product. It keeps the next move on a known relationship visible and actionable.
 
-This repository uses GitHub flow: pull requests target `main` and squash-merge. `develop` exists as a matching ref today; it is not the merge base for this product home.
+The current branch is an executable **prototype**, not a production CRM service. Runtime startup is intentionally empty: production code never loads bundled synthetic customer or relationship records. Tests inject anonymized fixtures explicitly.
 
-## Boundary
+This repository uses GitHub flow: product pull requests target `main` and squash-merge after exact-head checks and qualifying review. `develop` is not a release authority.
 
-ELUNVERA does **not** own these neighboring products. It consumes them later; it does not copy them.
+## Product boundary
 
 | Product | Owns | ELUNVERA does not |
 | --- | --- | --- |
-| LineageWeave | Lineage DAG / provenance | Invent a second relationship graph |
-| RankWeave | Retrieval fusion | Rank or search corpora |
-| Ontology / SDP | Catalog of types and terms | Own the type catalog |
-| Orgmetra | Employment truth | Store jobs, org charts, or employment records |
+| LineageWeave | lineage/provenance DAG | invent a second lineage graph |
+| RankWeave | retrieval fusion/evaluation | rank or search corpora |
+| ConceptWeave / semantic-data-portal | semantic generation/release and catalog governance | become an ontology/catalog authority |
+| Orgmetra | employment/organization truth | store jobs, org charts, or employment records |
+| keyverse | identity/federation/token contracts | invent another identity authority |
 
-ELUNVERA also does not absorb naruon mail chrome or GNB calendar/mail surfaces.
+ELUNVERA owns relationship activation: a known relationship, its next move, why the move is due, and the action receipt. Neighbor integrations must use released contracts through ACLs; ELUNVERA must not copy source or query another product's database.
 
-See [ADR 0001](docs/adr/0001-relationship-activation-home.md), [PRD](docs/prd.md), and [TRD](docs/trd.md).
+See [ADR 0001](docs/adr/0001-relationship-activation-home.md), [PRD](docs/prd.md), [TRD](docs/trd.md), [ARCHITECTURE](ARCHITECTURE.md), and the [commercialization gap baseline](docs/product-technical-gap-baseline.md).
 
-## Run the first surface
+## Run the prototype surface
 
 ```bash
 python3 scripts/serve.py
 ```
 
-Open http://127.0.0.1:8765/ — the activation queue is the home. No graph. No inbox.
+Open http://127.0.0.1:8765/. An empty queue is the correct startup state until a real-data repository adapter is implemented.
 
 ```bash
 python3 -m pytest -q

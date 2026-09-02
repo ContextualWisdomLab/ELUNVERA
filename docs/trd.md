@@ -1,39 +1,38 @@
-# ELUNVERA TRD — first slice
+# ELUNVERA TRD — relationship activation
 
-**Date:** 2026-08-27  
+**Updated:** 2026-09-02  
 **Implements:** [ADR 0001](adr/0001-relationship-activation-home.md), [PRD](prd.md)
 
-## Runtime
+## Current executable slice
 
-- Python 3.12+, stdlib HTTP server (`scripts/serve.py`)
-- Static home: `web/`
-- Queue logic: `src/elunvera/queue.py`
-- Seed: `data/activations.json`
-- Tests: `tests/test_queue.py` via pytest
+- Python 3.12+ prototype HTTP boundary: `scripts/serve.py`
+- Static browser surface: `web/`
+- Queue domain prototype: `src/elunvera/queue.py`
+- Python and browser tests: `tests/`
+- Exact-head product CI: `.github/workflows/ci.yml`
 
-No database, no identity provider, no mail stack.
+Runtime starts with an empty `ActivationQueue`. Production code does not load bundled demonstration records. Tests inject anonymized fixtures explicitly.
 
-## Data
+## Domain contract
 
-Each relationship row:
+A relationship snapshot currently exposes `id`, `from_party`, `to_party`, `kind`, `next_move`, `due`, `why_now`, `status`, and optional `lineage_cite`. `apply(relationship_id, action, due=?)` is the only mutation in the prototype. There is no graph write path.
 
-| Field | Meaning |
-| --- | --- |
-| `id` | Stable ELUNVERA id (`rel-…`) |
-| `from_party` / `to_party` | Display names of the two parties |
-| `kind` | `partner` \| `advisor` \| `account-contact` \| `collaborator` — a label, not an SDP term |
-| `next_move` | The concrete action |
-| `due` | ISO date |
-| `why_now` | One-sentence reason the move is due |
-| `status` | `due` \| `activated` \| `rescheduled` \| `dismissed` |
-| `lineage_cite` | Optional LineageWeave node id. Citation only; never an edge. |
+The current in-memory implementation is a replaceable adapter, not the durable repository contract.
 
-`apply(id, action, due=?)` is the only mutation. There is no graph write path.
+## Proposed persistence boundary
 
-## Home
+The next production persistence slice must use PostgreSQL in 3NF with semantically named objects. Proposed tables are `relationship_record`, `relationship_party`, `activation_move`, and immutable `activation_receipt`; concrete columns, keys and transaction boundaries remain Proposed until test-first migration work lands. One-word generic persistence-object names are prohibited. Item-level UPSERT/idempotency must be explicit and tested. Tenant ownership belongs in the aggregate key and authorization boundary, not in process-global state.
 
-`GET /` serves the activation queue. `GET /api/queue` returns due/rescheduled rows, earliest `due` first. `POST /api/queue/{id}` with `{"action":"activate"|"reschedule"|"dismiss","due":"..."}` mutates the in-memory copy of the seed (process-local).
+Write transactions should be minimal: one relationship activation aggregate per command. Cross-product references such as LineageWeave provenance are identifiers received through released APIs/ACLs, never foreign database joins.
+
+## Security and operability direction
+
+The current server binds only to loopback and is not a production deployment. Production work must add keyverse-backed authentication, least-privilege database credentials, migration/backup/restore evidence, structured audit receipts, cancellation/resource bounds, compose-based deployment, and security evidence aligned with CSAP/SOC 2 goals.
+
+## Web validation direction
+
+Production HTTP work must be asynchronous/non-blocking and measured with realistic k6 end-to-end load; each buyer-facing page targets p95 <= 20 ms. UX verification must cover empty/loading/error/permission states, keyboard and screen-reader behavior, responsive layouts, and ko/en/ja/zh/vi/es/de/fr resource boundaries before claims of accessibility or international readiness.
 
 ## CI
 
-`.github/workflows/ci.yml` runs pytest on the exact PR head. Echo-only jobs are not product CI.
+`.github/workflows/ci.yml` runs Python tests with complete touched-production statement/branch coverage, compiles Python entry points, and runs browser tests with complete line/branch/function coverage. Security/review evidence outside this local product workflow must still be exact-head and qualifying before merge.
