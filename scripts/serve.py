@@ -19,6 +19,7 @@ from elunvera import ActivationQueue  # noqa: E402
 # anonymized fixtures explicitly; a durable real-data repository is a later slice.
 QUEUE = ActivationQueue(())
 MAX_REQUEST_BODY_BYTES = 64 * 1024
+TRUSTED_HOST_NAMES = frozenset({"127.0.0.1", "localhost"})
 WEB_ASSETS = {
     "/web/styles.css": (ROOT / "web" / "styles.css", "text/css; charset=utf-8"),
     "/web/bootstrap.js": (
@@ -43,6 +44,9 @@ class Handler(SimpleHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         """Serve only product HTML/assets or the queue representation."""
 
+        if not self._host_is_trusted():
+            self.send_error(421)
+            return
         parsed = urlparse(self.path)
         if parsed.path in {"/", "/index.html"}:
             return self._file(ROOT / "web" / "index.html", "text/html; charset=utf-8")
@@ -57,6 +61,9 @@ class Handler(SimpleHTTPRequestHandler):
     def do_HEAD(self) -> None:  # noqa: N802
         """Mirror the allowlisted GET surface without exposing repository files."""
 
+        if not self._host_is_trusted():
+            self.send_error(421)
+            return
         parsed = urlparse(self.path)
         if parsed.path in {"/", "/index.html"}:
             return self._head_file(
@@ -73,10 +80,21 @@ class Handler(SimpleHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         """Validate and apply one bounded relationship action."""
 
+        if not self._host_is_trusted():
+            self.send_error(421)
+            return
         parsed = urlparse(self.path)
         prefix = "/api/queue/"
         if not parsed.path.startswith(prefix):
             self.send_error(404)
+            return
+        media_type = self.headers.get("Content-Type", "").partition(";")[0].strip().lower()
+        if media_type != "application/json":
+            self._bytes(
+                415,
+                "application/json; charset=utf-8",
+                json.dumps({"error": "Content-Type must be application/json"}).encode(),
+            )
             return
         relationship_id = parsed.path[len(prefix) :]
         try:
@@ -112,6 +130,13 @@ class Handler(SimpleHTTPRequestHandler):
             "application/json; charset=utf-8",
             json.dumps(row.to_dict(), ensure_ascii=False).encode(),
         )
+
+    def _host_is_trusted(self) -> bool:
+        """Accept only the loopback hostnames on which this prototype is served."""
+
+        host = self.headers.get("Host", "").strip().lower()
+        hostname = host.partition(":")[0]
+        return hostname in TRUSTED_HOST_NAMES
 
     def _queue_body(self) -> bytes:
         """Serialize the current queue projection for GET/HEAD metadata parity."""
