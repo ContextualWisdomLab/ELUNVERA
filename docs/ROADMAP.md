@@ -7,7 +7,7 @@
 - PRD, TRD, architecture, data model, security, privacy, threat model, UX, test, operability, ADR, OpenAPI, AsyncAPI, and schemas reviewed;
 - product boundary accepted;
 - no implementation or readiness claim mixed into documentation;
-- `develop` integration branch and protected review policy established.
+- `main` integration branch and protected review policy established.
 
 ## M1 — Identity, tenancy, and canonical CRM kernel
 
