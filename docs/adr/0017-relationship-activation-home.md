@@ -43,11 +43,11 @@ The executable first slice remains a prototype and therefore this ADR remains **
 - **RelationshipReference:** value identifying parties without taking ownership of upstream domain truth.
 - **ActivationQueue:** read projection of due/rescheduled aggregates.
 
-Invariants: only allowed commands transition state; reschedule requires a valid due date; activated/dismissed work leaves the home projection; one command transaction mutates at most one aggregate; duplicate command delivery must be idempotent once persistence lands; cross-product references remain references, not local copies of source-of-truth records.
+Invariants: source relationship identity, party references, next-move text, and why-now evidence are non-empty strings; source due dates are valid ISO dates; status is one of the known activation states; an optional lineage reference is a non-empty string when present; only allowed commands transition state; reschedule requires a valid due date; activated/dismissed work is terminal and leaves the home projection; one command transaction mutates at most one aggregate; duplicate command delivery must be idempotent once persistence lands; cross-product references remain references, not local copies of source-of-truth records.
 
 ## Consequences and risks
 
-The current Python/in-memory adapter is not production persistence and must not be described as shippable. The next causal slice is a real-data repository port plus 3NF PostgreSQL adapter, identity/tenant authorization, and immutable receipt/idempotency tests. Until an upstream owner has an immutable release, integrations use a port/ACL/feature flag/test double rather than source/DB/temp-branch coupling.
+The current Python/in-memory adapter is not production persistence and must not be described as shippable. The fail-closed source validation prevents malformed buyer-visible facts from being silently string-coerced, but it is only an in-memory boundary and is not a substitute for a released upstream contract or durable schema constraint. The next causal slice is a real-data repository port plus 3NF PostgreSQL adapter, identity/tenant authorization, and immutable receipt/idempotency tests. Until an upstream owner has an immutable release, integrations use a port/ACL/feature flag/test double rather than source/DB/temp-branch coupling.
 
 ## Follow-up evidence
 
