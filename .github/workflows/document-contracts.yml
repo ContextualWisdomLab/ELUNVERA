@@ -121,6 +121,30 @@ jobs:
           for path, marker in branch_markers.items():
               assert marker in path.read_text(encoding='utf-8'), f'canonical-main authority drift: {path}'
 
+          product_contract_markers = {
+              Path('docs/PRD.md'): (
+                  'p95 ≤ 20 ms',
+                  'Korean, English, Japanese, Chinese, Vietnamese, Spanish, German, and French',
+                  'DB-backed, versioned translation resources',
+              ),
+              Path('docs/TRD.md'): (
+                  'server/native clients fetch and cache only the screen keys they need',
+                  'p95 ≤ 20 ms',
+              ),
+              Path('docs/UX_SPEC.md'): (
+                  'Korean, English, Japanese, Chinese, Vietnamese, Spanish, German, and French',
+                  'DB-backed, versioned translation resources',
+              ),
+              Path('docs/TEST_STRATEGY.md'): (
+                  'p95 ≤ 20 ms',
+                  'ko/en/ja/zh/vi/es/de/fr',
+              ),
+          }
+          for path, markers in product_contract_markers.items():
+              text = path.read_text(encoding='utf-8')
+              for marker in markers:
+                  assert marker in text, f'commercialization contract drift: {path}: {marker}'
+
           for event_path in (
               Path('schemas/events/relationship-changed-v1.schema.json'),
               Path('schemas/events/opportunity-stage-changed-v1.schema.json'),
