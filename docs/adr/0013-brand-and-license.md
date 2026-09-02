@@ -1,6 +1,6 @@
 # ADR-0013: Preserve ELUNVERA brand and license original source under Apache-2.0
 
-- **Status:** Accepted
+- **Status:** Proposed
 - **Date:** 2026-09-02
 - **Decision owners:** ELUNVERA maintainers
 
@@ -18,9 +18,11 @@ License ContextualWisdomLab-authored ELUNVERA source and documentation under the
 
 The repository grant does not relicense standards, dependencies, generated assets, datasets, models, provider services, trademarks, or future imported material. Every such component requires independent provenance, commercial-license compatibility, and attribution/NOTICE review before incorporation or distribution.
 
+This decision remains Proposed while the foundation PR is unmerged. It may become Accepted only after ordinary protected-branch integration has preserved this license boundary and current validation/review evidence supports the integrated revision.
+
 ## Consequences
 
-- ELUNVERA-authored repository source and documentation have an explicit commercial-use-compatible grant.
+- ELUNVERA-authored repository source and documentation have an explicit commercial-use-compatible grant on this branch.
 - Brand and trademark rights remain separate from source licensing; no trademark registration or broader brand permission is claimed.
 - Future package/dependency/source/asset additions must be checked independently and cannot rely on Apache-2.0 to override their original terms.
 - A future incompatible inbound obligation requires replacement/removal or a superseding, evidence-backed repository decision rather than a silent exception.
