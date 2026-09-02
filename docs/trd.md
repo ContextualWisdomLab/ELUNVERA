@@ -1,7 +1,7 @@
 # ELUNVERA TRD — relationship activation
 
 **Updated:** 2026-09-02  
-**Implements:** [ADR 0001](adr/0001-relationship-activation-home.md), [PRD](prd.md)
+**Implements:** [ADR 0017](adr/0017-relationship-activation-home.md), [PRD](prd.md)
 
 ## Current executable slice
 
@@ -17,7 +17,7 @@ The loopback HTTP prototype exposes only `/`, `/index.html`, `/api/queue`, the q
 
 ## Domain contract
 
-A relationship snapshot currently exposes `id`, `from_party`, `to_party`, `kind`, `next_move`, `due`, `why_now`, `status`, and optional `lineage_cite`. `apply(relationship_id, action, due=?)` is the only mutation in the prototype. There is no graph write path.
+A relationship snapshot currently exposes `relationship_id`, `from_party`, `to_party`, `kind`, `next_move`, `due`, `why_now`, `status`, and optional `lineage_cite`. `apply(relationship_id, action, due=?)` is the only mutation in the prototype. `relationship_id` must be a non-empty string and duplicate aggregate identities fail closed. There is no graph write path.
 
 The current in-memory implementation is a replaceable adapter, not the durable repository contract.
 
