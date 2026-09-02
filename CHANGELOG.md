@@ -13,6 +13,7 @@ All notable ELUNVERA changes are recorded here while the product is pre-release.
 - Replaced the misleading empty-queue success message with an actionable no-relationship state and live-region semantics.
 - Removed internal repository/product implementation names from buyer-facing page copy.
 - Replaced generic `id` relationship fields with semantic `relationship_id` identifiers across the prototype and browser action boundary.
+- Renumbered the Proposed relationship-activation decision to ADR `0017` so it can follow the foundation branch's `0001`–`0016` ADR range without collision; references were migrated before the old path was retired.
 
 ### Security and reliability
 
