@@ -19,10 +19,18 @@ from elunvera import ActivationQueue  # noqa: E402
 # anonymized fixtures explicitly; a durable real-data repository is a later slice.
 QUEUE = ActivationQueue(())
 MAX_REQUEST_BODY_BYTES = 64 * 1024
+WEB_ASSETS = {
+    "/web/styles.css": (ROOT / "web" / "styles.css", "text/css; charset=utf-8"),
+    "/web/bootstrap.js": (
+        ROOT / "web" / "bootstrap.js",
+        "text/javascript; charset=utf-8",
+    ),
+    "/web/app.js": (ROOT / "web" / "app.js", "text/javascript; charset=utf-8"),
+}
 
 
 class Handler(SimpleHTTPRequestHandler):
-    """Serve static assets and the bounded activation-queue JSON API."""
+    """Serve the explicitly allowed product surface and bounded queue API."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
@@ -33,18 +41,21 @@ class Handler(SimpleHTTPRequestHandler):
         sys.stderr.write("%s - %s\n" % (self.address_string(), fmt % args))
 
     def do_GET(self) -> None:  # noqa: N802
-        """Serve the home document, queue representation, or static fallback."""
+        """Serve only product HTML/assets or the queue representation."""
 
         parsed = urlparse(self.path)
         if parsed.path in {"/", "/index.html"}:
             return self._file(ROOT / "web" / "index.html", "text/html; charset=utf-8")
+        asset = WEB_ASSETS.get(parsed.path)
+        if asset is not None:
+            return self._file(*asset)
         if parsed.path == "/api/queue":
             body = json.dumps(
                 {"relationships": [row.to_dict() for row in QUEUE.home()]},
                 ensure_ascii=False,
             ).encode("utf-8")
             return self._bytes(200, "application/json; charset=utf-8", body)
-        return super().do_GET()
+        self.send_error(404)
 
     def do_POST(self) -> None:  # noqa: N802
         """Validate and apply one bounded relationship action."""
@@ -90,10 +101,14 @@ class Handler(SimpleHTTPRequestHandler):
         )
 
     def _file(self, path: Path, content_type: str) -> None:
+        """Write one explicitly selected product asset with no-store caching."""
+
         data = path.read_bytes()
         self._bytes(200, content_type, data)
 
     def _bytes(self, code: int, content_type: str, body: bytes) -> None:
+        """Write one bounded response with explicit type, length, and cache policy."""
+
         self.send_response(code)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
