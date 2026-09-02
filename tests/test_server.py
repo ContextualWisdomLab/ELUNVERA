@@ -20,7 +20,7 @@ from scripts import serve
 
 TEST_RELATIONSHIPS = [
     {
-        "id": "rel-001",
+        "relationship_id": "rel-001",
         "from_party": "Account Alpha",
         "to_party": "Contact One",
         "kind": "partner",
@@ -30,7 +30,7 @@ TEST_RELATIONSHIPS = [
         "status": "due",
     },
     {
-        "id": "rel-002",
+        "relationship_id": "rel-002",
         "from_party": "Account Beta",
         "to_party": "Contact Two",
         "kind": "advisor",
@@ -40,7 +40,7 @@ TEST_RELATIONSHIPS = [
         "status": "due",
     },
     {
-        "id": "rel-003",
+        "relationship_id": "rel-003",
         "from_party": "Account Gamma",
         "to_party": "Contact Three",
         "kind": "account-contact",
@@ -214,12 +214,16 @@ def test_head_never_exposes_repository_internal_files(
     assert body == b""
 
 
-def test_get_queue_returns_relationships(http_server: tuple[str, int]) -> None:
+def test_get_queue_returns_semantically_named_relationship_identifiers(
+    http_server: tuple[str, int],
+) -> None:
     status, headers, body = request(*http_server, "GET", "/api/queue")
     assert status == 200
     assert headers["Content-Type"] == "application/json; charset=utf-8"
     payload = json.loads(body)
-    assert payload["relationships"][0]["id"] == "rel-003"
+    first = payload["relationships"][0]
+    assert first["relationship_id"] == "rel-003"
+    assert "id" not in first
 
 
 def test_unknown_get_returns_404(http_server: tuple[str, int]) -> None:
@@ -243,7 +247,10 @@ def test_post_applies_valid_action(http_server: tuple[str, int]) -> None:
     )
     assert status == 200
     assert headers["Cache-Control"] == "no-store"
-    assert json.loads(payload)["status"] == "activated"
+    response_payload = json.loads(payload)
+    assert response_payload["relationship_id"] == "rel-001"
+    assert "id" not in response_payload
+    assert response_payload["status"] == "activated"
 
 
 def test_post_rejects_simple_cross_origin_content_type(

@@ -8,7 +8,7 @@ from elunvera import ActivationQueue
 
 TEST_RELATIONSHIPS = [
     {
-        "id": "rel-001",
+        "relationship_id": "rel-001",
         "from_party": "Account Alpha",
         "to_party": "Contact One",
         "kind": "partner",
@@ -18,7 +18,7 @@ TEST_RELATIONSHIPS = [
         "status": "due",
     },
     {
-        "id": "rel-002",
+        "relationship_id": "rel-002",
         "from_party": "Account Beta",
         "to_party": "Contact Two",
         "kind": "advisor",
@@ -28,7 +28,7 @@ TEST_RELATIONSHIPS = [
         "status": "due",
     },
     {
-        "id": "rel-003",
+        "relationship_id": "rel-003",
         "from_party": "Account Gamma",
         "to_party": "Contact Three",
         "kind": "account-contact",
@@ -38,7 +38,7 @@ TEST_RELATIONSHIPS = [
         "status": "due",
     },
     {
-        "id": "rel-004",
+        "relationship_id": "rel-004",
         "from_party": "Account Delta",
         "to_party": "Contact Four",
         "kind": "collaborator",
@@ -58,7 +58,12 @@ def load_queue() -> ActivationQueue:
 
 def test_home_is_due_first_not_a_graph() -> None:
     home = load_queue().home()
-    assert [row.id for row in home] == ["rel-003", "rel-001", "rel-002", "rel-004"]
+    assert [row.relationship_id for row in home] == [
+        "rel-003",
+        "rel-001",
+        "rel-002",
+        "rel-004",
+    ]
     assert all(row.status in {"due", "rescheduled"} for row in home)
     assert not hasattr(ActivationQueue, "add_edge")
     assert not hasattr(ActivationQueue, "nodes")
@@ -68,7 +73,7 @@ def test_activate_leaves_the_home_queue() -> None:
     queue = load_queue()
     done = queue.apply("rel-003", "activate")
     assert done.status == "activated"
-    assert "rel-003" not in {row.id for row in queue.home()}
+    assert "rel-003" not in {row.relationship_id for row in queue.home()}
 
 
 def test_reschedule_keeps_row_with_new_due() -> None:
@@ -76,16 +81,16 @@ def test_reschedule_keeps_row_with_new_due() -> None:
     moved = queue.apply("rel-001", "reschedule", due="2026-09-10")
     assert moved.status == "rescheduled"
     assert moved.due == "2026-09-10"
-    home_ids = [row.id for row in queue.home()]
-    assert home_ids[-1] == "rel-001"
+    home_relationship_ids = [row.relationship_id for row in queue.home()]
+    assert home_relationship_ids[-1] == "rel-001"
 
 
 def test_dismiss_leaves_home_without_deleting_identity() -> None:
     queue = load_queue()
     gone = queue.apply("rel-002", "dismiss")
     assert gone.status == "dismissed"
-    assert queue.get("rel-002").id == "rel-002"
-    assert "rel-002" not in {row.id for row in queue.home()}
+    assert queue.get("rel-002").relationship_id == "rel-002"
+    assert "rel-002" not in {row.relationship_id for row in queue.home()}
 
 
 def test_rejects_employment_or_lineage_kinds() -> None:
@@ -93,7 +98,7 @@ def test_rejects_employment_or_lineage_kinds() -> None:
         ActivationQueue(
             [
                 {
-                    "id": "rel-x",
+                    "relationship_id": "rel-x",
                     "from_party": "Account Test",
                     "to_party": "Contact Test",
                     "kind": "employment",
@@ -112,6 +117,8 @@ def test_lineage_cite_is_optional_and_not_an_edge() -> None:
     dumped = row.to_dict()
     assert "edges" not in dumped
     assert "graph" not in dumped
+    assert "id" not in dumped
+    assert dumped["relationship_id"] == "rel-001"
 
 
 @pytest.mark.parametrize("due", [1, ["2026-09-10"], {"date": "2026-09-10"}])
@@ -127,7 +134,7 @@ def test_parse_preserves_lineage_citation_and_defaults_status() -> None:
     queue = ActivationQueue(
         [
             {
-                "id": "rel-cited",
+                "relationship_id": "rel-cited",
                 "from_party": "Account Citation",
                 "to_party": "Contact Citation",
                 "kind": "collaborator",

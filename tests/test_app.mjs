@@ -30,8 +30,8 @@ function createDocumentHarness() {
   const emptyEl = { hidden: true };
   const statusEl = { hidden: true, textContent: "" };
   const documentRef = {
-    getElementById(id) {
-      return { queue: queueEl, empty: emptyEl, status: statusEl }[id];
+    getElementById(elementId) {
+      return { queue: queueEl, empty: emptyEl, status: statusEl }[elementId];
     },
     createElement(tagName) {
       assert.equal(tagName, "li");
@@ -50,7 +50,7 @@ function createDocumentHarness() {
 
 function button(action = "activate") {
   return {
-    dataset: { action, id: "rel-001" },
+    dataset: { action, relationshipId: "rel-001" },
     disabled: false,
   };
 }
@@ -67,10 +67,10 @@ test("module exposes a testable activation app and HTML escaping", () => {
   );
 });
 
-test("initial load renders escaped relationship cards", async () => {
+test("initial load renders escaped relationship cards with semantic identity", async () => {
   const harness = createDocumentHarness();
   const row = {
-    id: 'rel-"1',
+    relationship_id: 'rel-"1',
     kind: "partner&ally",
     due: "2026-09-01",
     from_party: "A <Team>",
@@ -98,7 +98,8 @@ test("initial load renders escaped relationship cards", async () => {
   assert.match(harness.rendered[0].innerHTML, /B &gt; Team/);
   assert.match(harness.rendered[0].innerHTML, /Say &quot;hello&quot;/);
   assert.match(harness.rendered[0].innerHTML, /Now &amp; next/);
-  assert.match(harness.rendered[0].innerHTML, /rel-&quot;1/);
+  assert.match(harness.rendered[0].innerHTML, /data-relationship-id="rel-&quot;1"/);
+  assert.doesNotMatch(harness.rendered[0].innerHTML, /data-id=/);
   assert.equal(typeof harness.getClickHandler(), "function");
 });
 
