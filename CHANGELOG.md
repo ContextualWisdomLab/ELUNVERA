@@ -14,6 +14,7 @@ All notable ELUNVERA changes are recorded here while the product is pre-release.
 - Removed internal repository/product implementation names from buyer-facing page copy.
 - Replaced generic `id` relationship fields with semantic `relationship_id` identifiers across the prototype and browser action boundary.
 - Renumbered the Proposed relationship-activation decision to ADR `0017` so it can follow the foundation branch's `0001`–`0016` ADR range without collision; references were migrated before the old path was retired.
+- Made product CI review every pull-request base (including verified stacked prerequisites), limited push CI to canonical `main`, and added exact-head checkout verification so stack validation does not depend on a stale branch allowlist.
 
 ### Security and reliability
 
