@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Serve the ELUNVERA activation queue on http://127.0.0.1:8765/"""
+"""Serve the ELUNVERA activation queue on http://127.0.0.1:8765/."""
 
 from __future__ import annotations
 
@@ -15,8 +15,9 @@ sys.path.insert(0, str(SRC))
 
 from elunvera import ActivationQueue  # noqa: E402
 
-SEED = json.loads((ROOT / "data" / "activations.json").read_text(encoding="utf-8"))
-QUEUE = ActivationQueue(SEED["relationships"])
+# Runtime starts without fabricated customer relationships. Tests inject
+# anonymized fixtures explicitly; a durable real-data repository is a later slice.
+QUEUE = ActivationQueue(())
 MAX_REQUEST_BODY_BYTES = 64 * 1024
 
 
@@ -102,7 +103,7 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
-    """Run the loopback-only multithreaded demonstration server."""
+    """Run the loopback-only multithreaded prototype server."""
 
     host, port = "127.0.0.1", 8765
     server = ThreadingHTTPServer((host, port), Handler)
