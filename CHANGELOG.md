@@ -26,7 +26,7 @@ The format follows Keep a Changelog principles, and versioning will begin when t
 - Removed one-shot reconciliation/review-repair workflows and script from the publishable candidate before final manifest sealing.
 - Retargeted the Draft foundation to canonical protected `main`, aligned document-contract and review automation with that base, and corrected stale `develop` navigation/governance claims.
 - Returned ADR-0013 to `Proposed` while the foundation remains unmerged; protected integration is required before the decision may be marked `Accepted`.
-- Aligned AGENTS, contributing guidance, PRD, roadmap, and implementation plan/spec branch authority with canonical protected `main`; stacked work may target only its verified prerequisite branch.
+- Aligned AGENTS, contributing guidance, PRD, roadmap, and implementation plan/spec branch authority with canonical protected `main`; stacked work may target only its verified prerequisite branch, and document-contract CI now guards that authority against drift.
 
 ### Security
 
