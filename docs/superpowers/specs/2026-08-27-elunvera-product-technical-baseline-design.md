@@ -6,7 +6,7 @@
 
 ## 1. Intent
 
-Establish a coherent design baseline for a new evidence-centered B2B CRM that can enter implementation through `develop` without absorbing adjacent CWL products or inventing unvalidated commercial scores.
+Establish a coherent design baseline for a new evidence-centered B2B CRM that can enter implementation through canonical protected `main` without absorbing adjacent CWL products or inventing unvalidated commercial scores.
 
 ## 2. Considered approaches
 
