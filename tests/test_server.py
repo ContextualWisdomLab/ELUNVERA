@@ -120,10 +120,15 @@ def test_get_home_serves_html_without_cache(http_server: tuple[str, int]) -> Non
     assert b'type="module" src="/web/bootstrap.js"' in body
 
 
-def test_get_index_alias_serves_html(http_server: tuple[str, int]) -> None:
+def test_get_index_alias_serves_actionable_accessible_empty_state(
+    http_server: tuple[str, int],
+) -> None:
     status, _, body = request(*http_server, "GET", "/index.html")
     assert status == 200
     assert b"Activation queue" in body
+    assert b"No relationships are available yet." in body
+    assert b'aria-live="polite"' in body
+    assert b'role="status"' in body
 
 
 def test_get_queue_returns_relationships(http_server: tuple[str, int]) -> None:
