@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-09-02T09:59:00Z",
+  "generated_at": "2026-09-02T10:06:00Z",
   "algorithm": "SHA-256",
   "self_excluded": true,
   "file_count": 58,
@@ -26,9 +26,9 @@
     },
     {
       "path": ".github/workflows/document-contracts.yml",
-      "sha256": "276d5f02fa4f0f2d93098dd4f421cb91f0aee0925808c6f6925840ef07bee2c5",
-      "size_bytes": 7137,
-      "line_count": 161
+      "sha256": "7ccb26e8cf0c6018a3286b9454a447a6f858b095a0f5a7e89937709eab13618f",
+      "size_bytes": 8296,
+      "line_count": 176
     },
     {
       "path": "AGENTS.md",
@@ -38,8 +38,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "cd6a7037573811b5f9f42515f61e7d7d403b6824dd0f53d7e528079134eaa111",
-      "size_bytes": 2470,
+      "sha256": "6a7c7b82208a23ac493edb4df481c95b77fbeef1551856bb39a941f9ea054214",
+      "size_bytes": 2536,
       "line_count": 37
     },
     {
