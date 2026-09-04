@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: document-contracts-${{ github.event.pull_request.number || github.ref }}
+  group: document-contracts-${{ github.repository }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
