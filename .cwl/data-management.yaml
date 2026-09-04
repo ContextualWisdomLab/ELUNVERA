@@ -1,0 +1,48 @@
+schema_version: '1.0'
+repository: ContextualWisdomLab/ELUNVERA
+product_name: ELUNVERA
+authoritative_data_assets:
+  - asset_code: customer_relationship_record
+    description: Tenant-scoped parties, accounts, roles, relationships, evidence, and history.
+    data_classification: restricted_personal_and_commercial
+    system_of_record: true
+  - asset_code: commercial_opportunity_record
+    description: Opportunity process, stage, value, forecast, stakeholder, and outcome history.
+    data_classification: confidential_commercial
+    system_of_record: true
+  - asset_code: complaint_outcome_record
+    description: Complaint, remedy, customer response, satisfaction observation, and outcome history.
+    data_classification: restricted_customer_case
+    system_of_record: true
+data_owner_role: elunvera_product_owner
+data_steward_role: tenant_data_steward
+critical_data_elements:
+  - party_identity_reference
+  - relationship_truth_status
+  - relationship_valid_time
+  - account_owner_assignment
+  - opportunity_stage_history
+  - monetary_amount_and_currency
+  - communication_preference
+  - complaint_status
+quality_rule_references:
+  - docs/DATA_MODEL.md#18-data-quality-invariants
+  - docs/TEST_STRATEGY.md
+retention_policy_references:
+  - docs/PRIVACY.md#8-retention-and-disposition
+  - docs/adr/0015-retention-disposition.md
+lineage_producers:
+  - elunvera_api
+  - elunvera_worker
+lineage_consumers:
+  - semantic_data_portal
+  - lineageweave
+applicable_knowledge_areas:
+  - data_governance
+  - data_quality
+  - metadata_management
+  - data_security
+  - data_integration_and_interoperability
+assessment_exclusions:
+  - code: production_runtime_evidence
+    reason: The repository baseline contains no implemented runtime.

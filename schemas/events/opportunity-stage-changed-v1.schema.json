@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.contextualwisdomlab.org/elunvera/events/opportunity-stage-changed-v1.schema.json",
+  "title": "ELUNVERA opportunity stage changed event data v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "opportunity_id",
+    "aggregate_version",
+    "recorded_at",
+    "sales_process_version_id",
+    "from_stage_definition_id",
+    "to_stage_definition_id",
+    "effective_at",
+    "reason_code"
+  ],
+  "properties": {
+    "opportunity_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "aggregate_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Immutable system time when this aggregate version was recorded."
+    },
+    "sales_process_version_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "from_stage_definition_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "to_stage_definition_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "effective_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason_code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{1,63}$"
+    },
+    "evidence_reference_ids": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  }
+}
