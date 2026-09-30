@@ -74,6 +74,12 @@ high zoom
 reduced motion
 Korean
 English
+Japanese
+Chinese
+Vietnamese
+Spanish
+German
+French
 print
 ```
 

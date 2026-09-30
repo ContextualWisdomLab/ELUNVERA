@@ -89,13 +89,20 @@ The actual stages and allowed transitions are versioned per tenant. This diagram
 stateDiagram-v2
     [*] --> Received
     Received --> Acknowledged
-    Acknowledged --> Investigating
-    Investigating --> RemedyProposed
-    RemedyProposed --> RemedyDelivered
-    RemedyDelivered --> FollowUp
-    FollowUp --> Closed
+    Acknowledged --> Triaged
+    Triaged --> Investigating
+    Investigating --> ResponseProposed
+    ResponseProposed --> Responded
+    Responded --> RemedyInProgress
+    RemedyInProgress --> VerificationPending
+    VerificationPending --> Closed
     Received --> Withdrawn
-    Investigating --> Withdrawn
+    Acknowledged --> Withdrawn
+    Triaged --> Rejected
+    Investigating --> Rejected
+    Closed --> Reopened
+    Rejected --> Reopened
+    Reopened --> Triaged
 ```
 
 ## 6. Truth-status state model

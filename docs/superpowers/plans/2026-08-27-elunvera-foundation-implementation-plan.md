@@ -110,8 +110,9 @@ git commit -m "build: establish Rust foundation quality gate"
 
 **Interfaces:**
 - Produces: `VerifiedRequestContext`, `TenantReference`, `PurposeCode`, `AuthorizationError`.
+- Consumes: a Keyverse token verifier that validates the token before context construction.
 
-- [ ] **Step 1: Write failing context tests**
+- [ ] **Step 1: Write failing context and token-validation tests**
 
 ```rust
 #[test]
@@ -127,6 +128,8 @@ fn missing_purpose_is_rejected() {
 }
 ```
 
+Reject an incorrect issuer, audience, signature, token type, applicable nonce, `nbf`, `iat`, or `exp` before constructing `VerifiedRequestContext`.
+
 - [ ] **Step 2: Verify RED**
 
 Run: `cargo test -p authorization_context`
@@ -134,7 +137,7 @@ Expected: compilation failure because the types do not exist.
 
 - [ ] **Step 3: Implement immutable typed context**
 
-Use private fields, validated constructors, opaque tenant/workspace references, bounded role/scope sets, UTC time checks, and no deserialization path that accepts authority directly from HTTP headers.
+Validate the Keyverse token before constructing `VerifiedRequestContext`. Use private fields, validated constructors, opaque tenant/workspace references, bounded role/scope sets, UTC time checks, and no deserialization path that accepts authority directly from HTTP headers.
 
 - [ ] **Step 4: Verify GREEN and coverage**
 
@@ -142,7 +145,8 @@ Run:
 
 ```bash
 cargo test -p authorization_context
-cargo llvm-cov -p authorization_context --branch --fail-under-lines 100 --fail-under-functions 100 --fail-under-regions 100
+cargo +nightly llvm-cov -p authorization_context --branch --json --output-path target/llvm-cov-target/coverage.json --fail-under-lines 100 --fail-under-functions 100 --fail-under-regions 100
+python -c "import json; branches = json.load(open('target/llvm-cov-target/coverage.json'))['data'][0]['totals']['branches']; assert branches['count'] == branches['covered'], branches"
 ```
 
 Expected: all tests pass and production coverage is complete.
@@ -236,7 +240,8 @@ Run:
 
 ```bash
 cargo test -p account_registry -p party_registry -p relationship_registry
-cargo llvm-cov --workspace --branch --fail-under-lines 100
+cargo +nightly llvm-cov --workspace --branch --json --output-path target/llvm-cov-target/coverage.json --fail-under-lines 100
+python -c "import json; branches = json.load(open('target/llvm-cov-target/coverage.json'))['data'][0]['totals']['branches']; assert branches['count'] == branches['covered'], branches"
 ```
 
 Expected: all state transitions, negative branches, and production lines pass.
@@ -343,11 +348,11 @@ git commit -m "feat: project account context from durable events"
 
 - [ ] **Step 1: Create and record the Figma library**
 
-Create reviewed desktop, tablet, mobile, Korean, English, print, loading, empty, stale, conflict, denied, and provider-unavailable frames. Record the real Figma File ID in ADR-0014; do not use a placeholder.
+Create reviewed desktop, tablet, mobile, Korean (`ko`), English (`en`), Japanese (`ja`), Chinese (`zh`), Vietnamese (`vi`), Spanish (`es`), German (`de`), French (`fr`), print, loading, empty, stale, conflict, denied, and provider-unavailable frames. Record the real Figma File ID in ADR-0014; do not use a placeholder.
 
 - [ ] **Step 2: Write failing Storybook and Playwright interactions**
 
-Test keyboard band navigation, evidence drawer focus, graph-to-table parity, Korean/English rendering, stale state, safe next-action copy, and print exact values.
+Test keyboard band navigation, evidence drawer focus, graph-to-table parity, `ko/en/ja/zh/vi/es/de/fr` rendering, stale state, safe next-action copy, and print exact values.
 
 - [ ] **Step 3: Verify RED**
 
@@ -366,6 +371,8 @@ Expected: failures because components do not exist.
 Use accessible semantic HTML, progressive enhancement, bounded graph rendering, no internal service names, and no color-only states.
 
 - [ ] **Step 5: Validate screenshots and accessibility, then commit**
+
+Do not mark Task 7 complete until Storybook, E2E, and screenshot evidence covers `ko/en/ja/zh/vi/es/de/fr`.
 
 ```bash
 pnpm --dir apps/elunvera_web lint
@@ -412,7 +419,8 @@ Add low-cardinality metrics, correlation propagation, bounded status output, gra
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo nextest run --workspace --all-features
-cargo llvm-cov --workspace --branch --fail-under-lines 100
+cargo +nightly llvm-cov --workspace --branch --json --output-path target/llvm-cov-target/coverage.json --fail-under-lines 100
+python -c "import json; branches = json.load(open('target/llvm-cov-target/coverage.json'))['data'][0]['totals']['branches']; assert branches['count'] == branches['covered'], branches"
 python scripts/validate-contracts.py
 ./scripts/rehearse-migrations.sh
 ./scripts/rehearse-restore.sh
@@ -430,4 +438,4 @@ git commit -m "ops: complete ELUNVERA foundation readiness evidence"
 
 ## Plan completion gate
 
-The foundation is complete only when a target user can authenticate, create an account and parties, record and correct an evidence-linked time-valid relationship, view the accessible three-band account page, inspect the audit and operation receipt, and recover the same result from a tested backup without crossing tenant boundaries.
+The foundation is complete only when a target user can authenticate, create an account and parties, record and correct an evidence-linked time-valid relationship, view the accessible three-band account page, inspect the audit and operation receipt, and recover the same result from a tested backup without crossing tenant boundaries. Completion also requires reviewed Storybook, E2E, and screenshot evidence for `ko/en/ja/zh/vi/es/de/fr`.

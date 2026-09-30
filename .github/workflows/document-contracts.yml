@@ -70,6 +70,9 @@ jobs:
           raise 'manual assertion reason accepts empty text' unless manual_reason['minLength'].to_i >= 1
           raise 'manual assertion reason accepts whitespace only' unless manual_reason['pattern'] == '.*\\S.*'
 
+          account_items = openapi.fetch('components').fetch('schemas').fetch('AccountPage').fetch('properties').fetch('items')
+          raise 'AccountPage items must be bounded to page_size maximum' unless account_items['maxItems'] == 100
+
           ['/accounts', '/accounts/{account_id}'].each do |path|
             operation = openapi.fetch('paths').fetch(path).fetch('get')
             refs = operation.fetch('parameters').filter_map { |parameter| parameter['$ref'] }
@@ -149,11 +152,45 @@ jobs:
                   'p95 ≤ 20 ms',
                   'ko/en/ja/zh/vi/es/de/fr',
               ),
+              Path('docs/DATA_MODEL.md'): (
+                  'party_record ||--o| person_party : specializes',
+                  'party_record ||--o| organization_party : specializes',
+                  'party_record ||--o| group_party : specializes',
+                  'Exactly one party subtype record must exist and match `party_kind_code`.',
+              ),
+              Path('docs/STORYBOOK_INVENTORY.md'): (
+                  'Japanese',
+                  'Chinese',
+                  'Vietnamese',
+                  'Spanish',
+                  'German',
+                  'French',
+              ),
+              Path('docs/UML.md'): (
+                  'Acknowledged --> Triaged',
+                  'Investigating --> ResponseProposed',
+                  'RemedyInProgress --> VerificationPending',
+                  'Rejected --> Reopened',
+              ),
+              Path('docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md'): (
+                  'Consumes: a Keyverse token verifier',
+                  'incorrect issuer, audience, signature, token type, applicable nonce',
+                  'ko/en/ja/zh/vi/es/de/fr',
+              ),
           }
           for path, markers in product_contract_markers.items():
               text = path.read_text(encoding='utf-8')
               for marker in markers:
                   assert marker in text, f'commercialization contract drift: {path}: {marker}'
+
+          plan_text = Path('docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md').read_text(encoding='utf-8')
+          assert plan_text.count('cargo +nightly llvm-cov') == 3
+          assert plan_text.count("branches['count'] == branches['covered']") == 3
+          assert 'cargo llvm-cov --workspace --branch' not in plan_text
+          uml_text = Path('docs/UML.md').read_text(encoding='utf-8')
+          assert 'RemedyProposed' not in uml_text
+          assert 'RemedyDelivered' not in uml_text
+          assert 'FollowUp' not in uml_text
 
           for event_path in (
               Path('schemas/events/relationship-changed-v1.schema.json'),

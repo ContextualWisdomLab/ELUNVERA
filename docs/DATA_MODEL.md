@@ -29,9 +29,9 @@ erDiagram
     tenant_account ||--o{ workspace_record : contains
     tenant_account ||--o{ party_record : owns
     tenant_account ||--o{ commercial_account : owns
-    party_record ||--|| person_party : specializes
-    party_record ||--|| organization_party : specializes
-    party_record ||--|| group_party : specializes
+    party_record ||--o| person_party : specializes
+    party_record ||--o| organization_party : specializes
+    party_record ||--o| group_party : specializes
 
     commercial_account }o--|| party_record : centers_on
     commercial_account ||--o{ account_role_assignment : has
@@ -107,7 +107,7 @@ created_at
 updated_at
 ```
 
-The `party_kind_code` is structural (`person`, `organization`, `group`), not a commercial role such as customer or partner.
+The `party_kind_code` is structural (`person`, `organization`, `group`), not a commercial role such as customer or partner. Exactly one party subtype record must exist and match `party_kind_code`.
 
 ### Type extensions
 
