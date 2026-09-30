@@ -380,19 +380,19 @@ components:
           enum:
           - authoritative
           - observed
-          - inferred
           - proposed
         evidence_reference_ids:
           type: array
+          minItems: 1
           maxItems: 100
           items:
             type: string
             format: uuid
         manual_assertion_reason:
-          type:
-          - string
-          - 'null'
+          type: string
+          minLength: 1
           maxLength: 1000
+          pattern: .*\S.*
       anyOf:
       - required:
         - evidence_reference_ids

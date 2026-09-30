@@ -17,6 +17,7 @@
 | YAML parsing | Pass |
 | OpenAPI version and unique `operationId` structure | Pass |
 | Narrative/OpenAPI operation parity for the contract-bearing P0 surface | Pass |
+| Manual relationship truth and evidence invariants | Pass |
 | Temporal query parameters and effective-lens response headers | Pass |
 | AsyncAPI version, channel, producer-operation direction, and message structure | Pass |
 | Required event classification and payload-schema revision metadata | Pass |

@@ -128,6 +128,8 @@ POST   /v1/opportunities/{opportunity_id}/stage-transitions
 
 The two account read operations accept the contract-defined `valid_at`, `recorded_at`, and `knowledge_cutoff` parameters and echo the effective temporal lens in response headers. Mutations require `X-Correlation-Id` and `Idempotency-Key`; updates to an existing aggregate also require `If-Match`.
 
+The manual relationship command accepts `authoritative`, `observed`, or `proposed` truth only. It requires either at least one evidence reference or a non-blank manual assertion reason. Inferred truth belongs to a separately governed inference path that supplies evidence, confidence, and confidence-method metadata; the manual P0 command cannot manufacture it.
+
 Parties, interactions, commitments, relationship review, account merge/split, customer outcomes, complaints, satisfaction observations, search, model jobs, privacy cases, disposition, legal hold, and audit-query operations remain product-roadmap candidates. They are **not** HTTP contract commitments until their operations and schemas are added to `schemas/openapi.yaml`, validated, and versioned.
 
 Model-related future operations must return evidence references, uncertainty, model identity, prompt hash, and review status. A model claim can never mutate authoritative CRM facts without an explicit human-reviewed command.

@@ -60,6 +60,16 @@ jobs:
           raise 'OpenAPI P0 operation mismatch' unless operations.map { |method, path, _| [method, path] }.sort == expected
           raise 'duplicate operationId' unless operations.map(&:last).uniq.length == operations.length
 
+          relationship_request = openapi.fetch('components').fetch('schemas').fetch('RecordRelationshipRequest')
+          truth_status = relationship_request.fetch('properties').fetch('truth_status')
+          raise 'manual relationship command permits inferred truth' if truth_status.fetch('enum').include?('inferred')
+          evidence_refs = relationship_request.fetch('properties').fetch('evidence_reference_ids')
+          raise 'evidence-backed relationship accepts no evidence' unless evidence_refs['minItems'].to_i >= 1
+          manual_reason = relationship_request.fetch('properties').fetch('manual_assertion_reason')
+          raise 'manual assertion reason must be a string' unless manual_reason['type'] == 'string'
+          raise 'manual assertion reason accepts empty text' unless manual_reason['minLength'].to_i >= 1
+          raise 'manual assertion reason accepts whitespace only' unless manual_reason['pattern'] == '.*\\S.*'
+
           ['/accounts', '/accounts/{account_id}'].each do |path|
             operation = openapi.fetch('paths').fetch(path).fetch('get')
             refs = operation.fetch('parameters').filter_map { |parameter| parameter['$ref'] }
