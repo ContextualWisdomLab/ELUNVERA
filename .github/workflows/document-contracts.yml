@@ -155,6 +155,21 @@ jobs:
               assert 'recorded_at' in schema['required']
               assert schema['properties']['recorded_at']['format'] == 'date-time'
 
+          trailing_whitespace = []
+          for path_text in subprocess.check_output(
+              ['git', 'ls-files'], text=True
+          ).splitlines():
+              payload = Path(path_text).read_bytes()
+              if b'\0' in payload:
+                  continue
+              for line_number, line in enumerate(payload.splitlines(), 1):
+                  if line.endswith((b' ', b'\t')):
+                      trailing_whitespace.append(f'{path_text}:{line_number}')
+          assert not trailing_whitespace, (
+              'tracked text contains trailing whitespace: '
+              + ', '.join(trailing_whitespace)
+          )
+
           manifest = json.loads(Path('manifest.json').read_text(encoding='utf-8'))
           tracked = {
               path

@@ -21,6 +21,7 @@ The format follows Keep a Changelog principles, and versioning will begin when t
 
 ### Fixed
 
+- Made the permanent document-contract gate reject trailing whitespace in committed tracked text and cleaned the affected product-technical gap baseline.
 - Aligned the narrative HTTP inventory with the authoritative OpenAPI P0 surface.
 - Added temporal read parameters and effective-lens response headers to the machine-readable HTTP contract.
 - Corrected AsyncAPI operations to publish ELUNVERA domain events and required classification/schema metadata.

@@ -1,6 +1,6 @@
 # ELUNVERA Documentation Baseline Validation Report
 
-- **Validation date:** 2026-09-02
+- **Validation date:** 2026-10-01
 - **Scope:** Documentation, contracts, schemas, local links, source licensing, and artifact integrity
 - **Runtime claim:** None
 
@@ -25,6 +25,7 @@
 | Obvious database two-word `snake_case` declaration check | Pass |
 | Apache-2.0 repository source-license boundary | Pass |
 | Manifest SHA-256 verification | Pass after final manifest resealing |
+| Tracked non-binary text trailing-whitespace scan | Pass |
 
 ## Inventory
 
@@ -44,6 +45,7 @@ OpenAPI/AsyncAPI structural and cross-contract coherence checks
 Markdown relative-link and fence checks
 Placeholder and naming scans
 SHA-256 manifest generation and verification
+Tracked non-binary text trailing-whitespace validation
 Git diff and branch-history inspection
 ```
 
