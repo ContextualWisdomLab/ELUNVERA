@@ -54,6 +54,7 @@ export function createActivationApp({
       body.due = due.toISOString().slice(0, 10);
     }
     btn.disabled = true;
+    let commandAccepted = false;
     try {
       const res = await fetchImpl(
         `/api/queue/${encodeURIComponent(relationshipId)}`,
@@ -68,7 +69,22 @@ export function createActivationApp({
         statusEl.textContent = "Could not record that move.";
         return;
       }
-      const done = await res.json();
+      commandAccepted = true;
+      let done;
+      try {
+        done = await res.json();
+      } catch (_responseError) {
+        statusEl.hidden = false;
+        try {
+          await loadQueue();
+          statusEl.textContent =
+            "Move was accepted, but its result could not be confirmed. The queue was refreshed.";
+        } catch (_refreshError) {
+          statusEl.textContent =
+            "Move was accepted, but its result could not be confirmed. Refresh the page before retrying.";
+        }
+        return;
+      }
       statusEl.hidden = false;
       statusEl.textContent = `${done.from_party} → ${done.to_party} is now ${done.status}.`;
       try {
@@ -80,7 +96,7 @@ export function createActivationApp({
       statusEl.hidden = false;
       statusEl.textContent = "Could not record that move.";
     } finally {
-      btn.disabled = false;
+      btn.disabled = commandAccepted;
     }
   }
 

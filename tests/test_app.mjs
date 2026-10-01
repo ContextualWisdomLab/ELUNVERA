@@ -164,7 +164,7 @@ test("reschedule records a seven-day UTC date, reports success, and reloads", as
     due: "2026-09-05",
   });
   assert.equal(calls[2][0], "/api/queue");
-  assert.equal(selected.disabled, false);
+  assert.equal(selected.disabled, true);
   assert.equal(harness.statusEl.hidden, false);
   assert.equal(harness.statusEl.textContent, "A → B is now rescheduled.");
 });
@@ -274,7 +274,7 @@ test("a committed action remains successful when queue refresh fails", async () 
   const selected = button();
   await harness.getClickHandler()(clickEvent(selected));
 
-  assert.equal(selected.disabled, false);
+  assert.equal(selected.disabled, true);
   assert.equal(harness.statusEl.hidden, false);
   assert.equal(
     harness.statusEl.textContent,
@@ -309,7 +309,7 @@ test("browser auto-start uses global dependencies and the default clock", async 
       action: "reschedule",
       due: "2026-09-05",
     });
-    assert.equal(selected.disabled, false);
+    assert.equal(selected.disabled, true);
   } finally {
     delete globalThis.document;
     delete globalThis.fetch;
