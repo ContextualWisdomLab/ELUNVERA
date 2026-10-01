@@ -6,7 +6,7 @@ This document defines ELUNVERA’s durable responsibility boundaries and deploya
 
 ### Current executable prototype
 
-`src/elunvera/queue.py`, `scripts/serve.py`, and `web/` form a loopback-only relationship-activation prototype. It starts with zero records; tests inject anonymized fixtures. Its `RelationshipActivation` command boundary mutates at most one known relationship per command and exposes Activate, Reschedule, and Dismiss behavior. The in-memory queue and Python server are replaceable adapters and do not satisfy the Rust, PostgreSQL, tenant-isolation, recovery, release, or performance architecture below.
+`src/elunvera/queue.py`, `scripts/serve.py`, and `web/` form a loopback-only relationship-activation prototype. It starts with zero records; tests inject anonymized fixtures. Its `RelationshipActivation` command boundary mutates at most one known relationship per command and exposes Activate, Reschedule, and Dismiss behavior. Competing in-process commands use an optimistic compare-and-set under a transition lock, so only one terminal decision can commit. Loopback responses deny framing, and the browser preserves the accepted command outcome if a later queue refresh fails. The in-memory queue and Python server are replaceable adapters; these controls do not satisfy cross-process concurrency, Rust, PostgreSQL, tenant-isolation, recovery, release, or performance architecture below.
 
 ## 2. Context diagram
 
