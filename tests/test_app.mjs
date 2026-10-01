@@ -188,7 +188,7 @@ test("a non-OK action response shows the existing error state", async () => {
   assert.equal(harness.statusEl.textContent, "Could not record that move.");
 });
 
-for (const stage of ["fetch", "response-json", "reload"]) {
+for (const stage of ["fetch", "response-json"]) {
   test(`queue action recovers when ${stage} rejects`, async () => {
     const harness = createDocumentHarness();
     let call = 0;
@@ -219,6 +219,32 @@ for (const stage of ["fetch", "response-json", "reload"]) {
     assert.equal(harness.statusEl.textContent, "Could not record that move.");
   });
 }
+
+test("a committed action remains successful when queue refresh fails", async () => {
+  const harness = createDocumentHarness();
+  let call = 0;
+  const app = createActivationApp({
+    documentRef: harness.documentRef,
+    fetchImpl: async () => {
+      call += 1;
+      if (call === 1) return response({ relationships: [] });
+      if (call === 2) {
+        return response({ from_party: "A", to_party: "B", status: "activated" });
+      }
+      throw new Error("reload unavailable");
+    },
+  });
+  await app.ready;
+  const selected = button();
+  await harness.getClickHandler()(clickEvent(selected));
+
+  assert.equal(selected.disabled, false);
+  assert.equal(harness.statusEl.hidden, false);
+  assert.equal(
+    harness.statusEl.textContent,
+    "A → B was activated, but the queue could not refresh.",
+  );
+});
 
 test("browser auto-start uses global dependencies and the default clock", async () => {
   const harness = createDocumentHarness();

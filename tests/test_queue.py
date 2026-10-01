@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import threading
+
 import pytest
 
 from elunvera import ActivationQueue
@@ -240,3 +242,38 @@ def test_lineage_reference_must_be_non_empty_string_when_present(lineage_cite: o
     invalid["lineage_cite"] = lineage_cite
     with pytest.raises(ValueError, match="lineage_cite"):
         ActivationQueue([invalid])
+
+
+def test_conflicting_terminal_commands_accept_exactly_one_transition() -> None:
+    """A concurrent terminal command must not overwrite an accepted transition."""
+
+    queue = load_queue()
+    original_get = queue.get
+    reads_complete = threading.Barrier(2)
+
+    def synchronized_get(relationship_id: str):
+        row = original_get(relationship_id)
+        reads_complete.wait(timeout=2)
+        return row
+
+    queue.get = synchronized_get  # type: ignore[method-assign]
+    outcomes: list[str] = []
+
+    def apply(action: str) -> None:
+        try:
+            queue.apply("rel-001", action)
+            outcomes.append("accepted")
+        except ValueError:
+            outcomes.append("rejected")
+
+    workers = [
+        threading.Thread(target=apply, args=(action,))
+        for action in ("activate", "dismiss")
+    ]
+    for worker in workers:
+        worker.start()
+    for worker in workers:
+        worker.join(timeout=2)
+
+    assert not any(worker.is_alive() for worker in workers)
+    assert sorted(outcomes) == ["accepted", "rejected"]

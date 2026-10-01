@@ -148,6 +148,8 @@ def test_get_home_serves_html_without_cache(http_server: tuple[str, int]) -> Non
     status, headers, body = request(*http_server, "GET", "/")
     assert status == 200
     assert headers["Cache-Control"] == "no-store"
+    assert headers["Content-Security-Policy"] == "frame-ancestors 'none'"
+    assert headers["X-Frame-Options"] == "DENY"
     assert headers["Content-Type"] == "text/html; charset=utf-8"
     assert b"ELUNVERA" in body
     assert b'type="module" src="/web/bootstrap.js"' in body
