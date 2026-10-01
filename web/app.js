@@ -93,8 +93,16 @@ export function createActivationApp({
         statusEl.textContent = `${done.from_party} → ${done.to_party} was ${done.status}, but the queue could not refresh.`;
       }
     } catch (_error) {
+      commandAccepted = true;
       statusEl.hidden = false;
-      statusEl.textContent = "Could not record that move.";
+      try {
+        await loadQueue();
+        statusEl.textContent =
+          "Move was accepted, but its result could not be confirmed. The queue was refreshed.";
+      } catch (_refreshError) {
+        statusEl.textContent =
+          "Move was accepted, but its result could not be confirmed. Refresh the page before retrying.";
+      }
     } finally {
       btn.disabled = commandAccepted;
     }

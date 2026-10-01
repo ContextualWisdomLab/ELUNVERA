@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-10-01T16:00:13.762Z",
+  "generated_at": "2026-10-01T16:02:02.065Z",
   "algorithm": "sha256",
   "self_excluded": true,
   "file_count": 76,
@@ -440,9 +440,9 @@
     },
     {
       "path": "web/app.js",
-      "sha256": "47a3559d26b9cc8bdcaa90bfd30066715a02b828b9af9058e40c3dbdd3f004bd",
-      "size_bytes": 3859,
-      "line_count": 110
+      "sha256": "6de8c9d4fe0fda982c09bcea44583caa0f88566837f99ec9d592e23f42a63182",
+      "size_bytes": 4171,
+      "line_count": 118
     },
     {
       "path": "web/bootstrap.js",
