@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-10-01T15:37:16.461Z",
+  "generated_at": "2026-10-01T15:40:05.667Z",
   "algorithm": "sha256",
   "self_excluded": true,
   "file_count": 76,
@@ -398,9 +398,9 @@
     },
     {
       "path": "scripts/serve.py",
-      "sha256": "385753a0e32732b64dd3bb4d68c139a720222d5cf8fc83edb1aa1b0092fee4ed",
-      "size_bytes": 7104,
-      "line_count": 189
+      "sha256": "1a58541f1b9a6fff3121288155f7ab9a07d8ca095a255ce83f7904f246325bfc",
+      "size_bytes": 7234,
+      "line_count": 191
     },
     {
       "path": "src/elunvera/__init__.py",
@@ -410,9 +410,9 @@
     },
     {
       "path": "src/elunvera/queue.py",
-      "sha256": "3464d836d3bdf99a75917d368931fb09150243a36e54d36dea9f7c3a60827222",
-      "size_bytes": 5539,
-      "line_count": 144
+      "sha256": "4536270917429e509de9a9ed08bf2995cd60e3d8f0cf4a922d7657e6471a3ecb",
+      "size_bytes": 5831,
+      "line_count": 151
     },
     {
       "path": "tests/test_app.mjs",
@@ -440,9 +440,9 @@
     },
     {
       "path": "web/app.js",
-      "sha256": "643666e51138d2ab89084f95ebe399c7ee2122a981a738d2bd5446bcca1883c5",
-      "size_bytes": 3133,
-      "line_count": 90
+      "sha256": "a48a11ac79cbd9dbb7f408fc8cb122fa4ef9ffcfc1bfff1dd44b38977d53635e",
+      "size_bytes": 3314,
+      "line_count": 94
     },
     {
       "path": "web/bootstrap.js",

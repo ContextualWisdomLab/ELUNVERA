@@ -167,6 +167,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(content_length))
         self.send_header("Cache-Control", "no-store")
+        self.send_header("Content-Security-Policy", "frame-ancestors 'none'")
+        self.send_header("X-Frame-Options", "DENY")
         self.end_headers()
 
     def _bytes(self, code: int, content_type: str, body: bytes) -> None:

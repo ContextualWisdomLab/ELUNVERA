@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import asdict, dataclass
 from datetime import date
+from threading import Lock
 from typing import Any, Iterable, Mapping
 
 ALLOWED_KINDS = frozenset({"partner", "advisor", "account-contact", "collaborator"})
@@ -45,6 +46,7 @@ class ActivationQueue:
 
     def __init__(self, items: Iterable[Mapping[str, Any]]) -> None:
         self._rows: dict[str, Relationship] = {}
+        self._transition_lock = Lock()
         for raw in items:
             row = self._parse(raw)
             if row.kind not in ALLOWED_KINDS:
@@ -140,5 +142,10 @@ class ActivationQueue:
             updated = Relationship(
                 **{**current.to_dict(), "status": "rescheduled", "due": due}
             )
-        self._rows[relationship_id] = updated
+        with self._transition_lock:
+            if self._rows.get(relationship_id) != current:
+                raise ValueError(
+                    f"relationship {relationship_id} changed concurrently"
+                )
+            self._rows[relationship_id] = updated
         return updated

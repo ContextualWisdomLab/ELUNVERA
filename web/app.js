@@ -71,7 +71,11 @@ export function createActivationApp({
       const done = await res.json();
       statusEl.hidden = false;
       statusEl.textContent = `${done.from_party} → ${done.to_party} is now ${done.status}.`;
-      await loadQueue();
+      try {
+        await loadQueue();
+      } catch (_refreshError) {
+        statusEl.textContent = `${done.from_party} → ${done.to_party} was ${done.status}, but the queue could not refresh.`;
+      }
     } catch (_error) {
       statusEl.hidden = false;
       statusEl.textContent = "Could not record that move.";
