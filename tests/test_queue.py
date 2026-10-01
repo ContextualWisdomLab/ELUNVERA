@@ -277,3 +277,24 @@ def test_conflicting_terminal_commands_accept_exactly_one_transition() -> None:
 
     assert not any(worker.is_alive() for worker in workers)
     assert sorted(outcomes) == ["accepted", "rejected"]
+
+def test_stale_command_rejects_an_aba_transition() -> None:
+    """A stale snapshot cannot win after the same value is restored."""
+
+    queue = load_queue()
+    original_get = queue.get
+
+    def interleaved_get(relationship_id: str):
+        stale = original_get(relationship_id)
+        queue.get = original_get  # type: ignore[method-assign]
+        queue.apply(relationship_id, "reschedule", due="2026-10-15")
+        queue.apply(relationship_id, "reschedule", due=stale.due)
+        return stale
+
+    queue.get = interleaved_get  # type: ignore[method-assign]
+    with pytest.raises(ValueError, match="changed concurrently"):
+        queue.apply("rel-004", "activate")
+
+    current = queue.get("rel-004")
+    assert current.status == "rescheduled"
+    assert current.due == TEST_RELATIONSHIPS[3]["due"]

@@ -188,7 +188,7 @@ test("a non-OK action response shows the existing error state", async () => {
   assert.equal(harness.statusEl.textContent, "Could not record that move.");
 });
 
-for (const stage of ["fetch", "response-json"]) {
+for (const stage of ["fetch"]) {
   test(`queue action recovers when ${stage} rejects`, async () => {
     const harness = createDocumentHarness();
     let call = 0;
@@ -217,6 +217,42 @@ for (const stage of ["fetch", "response-json"]) {
     assert.equal(selected.disabled, false);
     assert.equal(harness.statusEl.hidden, false);
     assert.equal(harness.statusEl.textContent, "Could not record that move.");
+  });
+}
+
+
+for (const refreshFails of [false, true]) {
+  test(`an accepted action with an unreadable response reconciles safely (refresh fails: ${refreshFails})`, async () => {
+    const harness = createDocumentHarness();
+    let call = 0;
+    const app = createActivationApp({
+      documentRef: harness.documentRef,
+      fetchImpl: async () => {
+        call += 1;
+        if (call === 1) return response({ relationships: [] });
+        if (call === 2) {
+          return response(
+            {},
+            { jsonError: new Error("invalid response JSON") },
+          );
+        }
+        if (refreshFails) throw new Error("reload unavailable");
+        return response({ relationships: [] });
+      },
+    });
+    await app.ready;
+    const selected = button();
+    await harness.getClickHandler()(clickEvent(selected));
+
+    assert.equal(call, 3);
+    assert.equal(selected.disabled, true);
+    assert.equal(harness.statusEl.hidden, false);
+    assert.equal(
+      harness.statusEl.textContent,
+      refreshFails
+        ? "Move was accepted, but its result could not be confirmed. Refresh the page before retrying."
+        : "Move was accepted, but its result could not be confirmed. The queue was refreshed.",
+    );
   });
 }
 
