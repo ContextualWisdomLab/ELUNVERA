@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-10-01T15:54:07.403Z",
+  "generated_at": "2026-10-01T15:56:02.592Z",
   "algorithm": "sha256",
   "self_excluded": true,
   "file_count": 76,
@@ -50,8 +50,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "sha256": "321f80afd6be8ec7eded1a1d7e098ae5a4822e691ed774f618d37e64f810a905",
-      "size_bytes": 6568,
+      "sha256": "dec05cd7a2628c6ba899eea9cadf35a18be49204849eb11ac294a564a1044533",
+      "size_bytes": 6658,
       "line_count": 61
     },
     {
@@ -92,8 +92,8 @@
     },
     {
       "path": "docs/ARCHITECTURE.md",
-      "sha256": "aa0b54f44eb2654f4eaa27087718b0f1d5d8ade82fd189e2357a03fdfb652f15",
-      "size_bytes": 10227,
+      "sha256": "c155edf654c39a0e2e4e5fbd8d48b19c1e0bbd64a8d801664197c3339544b002",
+      "size_bytes": 10428,
       "line_count": 254
     },
     {
@@ -332,8 +332,8 @@
     },
     {
       "path": "docs/product-technical-gap-baseline.md",
-      "sha256": "1eec8019a00ae5b7df651210b1dc3175fab5a545d577c391fc9904eaf56a1c0f",
-      "size_bytes": 18417,
+      "sha256": "dbc90a399633ffa7f6f9d4a9efff75d459fafa540c59bd4b2e09e61c47d67c73",
+      "size_bytes": 18825,
       "line_count": 252
     },
     {

@@ -23,8 +23,8 @@ The format follows Keep a Changelog principles, and versioning will begin when t
 
 ### Fixed
 
-- Serialized prototype activation transitions with an optimistic compare-and-set so concurrent terminal commands cannot both succeed.
-- Preserved a successful command outcome when a later queue refresh fails, and added anti-framing response headers for the loopback UI.
+- Serialized prototype activation transitions with a snapshot-identity compare-and-set so concurrent and ABA-stale commands cannot overwrite an accepted decision.
+- Preserved accepted-command truth across unreadable success responses and later queue-refresh failures, disabled unsafe stale retries, and added anti-framing response headers for the loopback UI.
 - Integrated the complete product/technical foundation into the executable prototype stack without discarding either valid delta, and made uppercase `docs/PRD.md`, `docs/TRD.md`, and `docs/ARCHITECTURE.md` the single canonical authorities.
 - Reconciled the first-slice PRD/TRD/ADR with its actual prototype maturity and DDD/product boundaries.
 - Runtime startup now contains no fabricated relationships; anonymized synthetic data is test-only.

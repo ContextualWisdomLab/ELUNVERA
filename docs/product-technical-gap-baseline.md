@@ -1,7 +1,7 @@
 # ELUNVERA Product–Technical Gap Baseline
 
-- **Baseline version:** 0.6
-- **Observed date:** 2026-10-01
+- **Baseline version:** 0.7
+- **Observed date:** 2026-10-02
 - **Repository:** `ContextualWisdomLab/ELUNVERA`
 - **Target integration branch:** `main`
 - **Evidence scope:** live repository/PR state plus this Draft foundation's PRD, TRD, architecture, data model, API/event contracts, UX, test strategy, ADRs, and source-license proposal
@@ -84,7 +84,7 @@ The aggregate boundary is the smallest transactionally consistent business objec
 
 **Current evidence:** a loopback Python/in-memory Activation Queue prototype plus static browser surface has complete local Python/browser test coverage on its source branch. It is not production architecture.
 
-The carried prototype invariants are explicit: semantic `relationship_id` values are non-empty and unique within a snapshot set; buyer-visible party, kind, next-move, due, why-now, status, and optional provenance fields fail closed on malformed input; due values are real ISO dates; only known states are accepted; activated/dismissed relationships are terminal; HTTP actions must be strings; and one command mutates at most one aggregate. The loopback server serves only the product HTML/CSS/JavaScript and queue routes, so repository documents, workflows, dependency manifests, and arbitrary root paths remain outside the customer surface. The prototype now serializes competing writes with an in-process optimistic compare-and-set, so concurrent terminal commands cannot both succeed. Its loopback responses deny framing, and the UI distinguishes an accepted command from a later projection-refresh failure. RED head `16e583256b63e9c1f9208f6c322b6aa7e37a5381` reproduced the lost-update and framing failures in hosted product CI; successor `c7ee040df3e0dbf0e5bad6bf3f3dbfcade002454` implements the bounded repair. These remain in-memory/prototype controls, not durable tenant, cross-process concurrency, receipt, or release evidence.
+The carried prototype invariants are explicit: semantic `relationship_id` values are non-empty and unique within a snapshot set; buyer-visible party, kind, next-move, due, why-now, status, and optional provenance fields fail closed on malformed input; due values are real ISO dates; only known states are accepted; activated/dismissed relationships are terminal; HTTP actions must be strings; and one command mutates at most one aggregate. The loopback server serves only the product HTML/CSS/JavaScript and queue routes, so repository documents, workflows, dependency manifests, and arbitrary root paths remain outside the customer surface. The prototype serializes competing writes with an in-process snapshot-identity compare-and-set, so concurrent terminal commands and ABA-stale snapshots cannot overwrite an accepted decision. Loopback responses deny framing. After an HTTP-successful command, the UI treats unreadable response JSON or a failed projection refresh as accepted-but-unconfirmed, attempts reconciliation, and keeps the stale action disabled rather than inviting an unsafe retry. RED head `16e583256b63e9c1f9208f6c322b6aa7e37a5381` reproduced the initial lost-update and framing failures; RED head `bfc7b2f08237275ce9d84d796eb0dea3cf4fdcfb` reproduced the ABA stale-write defect; intermediate head `86370d652edce18c26327e604d5ffee163772698` proved the ABA repair and exposed both ambiguous-success browser failures; successor `9565da8c4e0c89232566686226977cc234d9a915` implements both second-round repairs. These remain in-memory/prototype controls, not durable tenant, cross-process concurrency, receipt, or release evidence.
 
 **Gap:** no Rust workspace, tenant-aware production domain/API boundary, or durable adapter exists.
 
