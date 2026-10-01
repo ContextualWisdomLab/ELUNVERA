@@ -7,7 +7,7 @@ import json
 import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
@@ -96,7 +96,7 @@ class Handler(SimpleHTTPRequestHandler):
                 json.dumps({"error": "Content-Type must be application/json"}).encode(),
             )
             return
-        relationship_id = parsed.path[len(prefix) :]
+        relationship_id = unquote(parsed.path[len(prefix) :])
         try:
             raw_length = self.headers.get("Content-Length", "0")
             try:

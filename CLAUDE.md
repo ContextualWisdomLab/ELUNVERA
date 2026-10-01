@@ -1,7 +1,36 @@
-# CLAUDE.md
+# CLAUDE.md — ELUNVERA repository context
 
-Follow `AGENTS.md` as the repository development contract.
+ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence system of record.
 
-For ELUNVERA specifically, preserve the relationship-activation bounded context and do not move lineage, retrieval, ontology/catalog, employment, or identity authority into this repository. Treat the current Python/in-memory server as a prototype adapter, not production architecture. Keep runtime free of synthetic customer records, anonymize fixtures, and require test-first evidence before behavior changes.
+## North-star behavior
 
-Before changing a writer branch, re-fetch its exact head and preserve concurrent work. Before any merge, require exact-head checks and ordinary governance; never self-approve or weaken gates. Keep `docs/product-technical-gap-baseline.md`, PRD, TRD, ADR, ARCHITECTURE and CHANGELOG consistent with implementation and current evidence.
+Turn scattered customer context into a judgment-ready structure and an evidence-linked next action. Do not produce generic summaries or opaque scores.
+
+## Canonical boundaries
+
+- Keyverse owns identity and federation.
+- naruon owns interaction with customer-controlled email, calendar, and files.
+- ThreadWeave computes email threads.
+- LineageWeave proposes inferred lineage.
+- ScopeWeave owns generalized work and project execution.
+- Billing Control Plane owns commercial metering, entitlement, invoices, and payment truth.
+- Semantic Data Portal owns cross-product ontology and catalog context.
+- ELUNVERA owns customer relationship, commercial account, opportunity, commitment, complaint, and customer-outcome facts.
+
+## Non-negotiable implementation constraints
+
+- Rust-first backend and compute boundary.
+- PostgreSQL 18.6+ within supported 18.x.
+- 3NF canonical store; graph/search/vector views are projections.
+- Tenant isolation enforced in application and database layers.
+- Purpose-aware access and field selection; no destructive masking of authorized operational data.
+- Bitemporal relationship and role history.
+- Exact decimal money; no binary floating-point monetary calculations.
+- No heuristic relationship-health or forecast weights.
+- Human authority for irreversible customer-facing actions.
+- Full provenance for model-generated claims.
+- 100% production statement/branch/doc coverage for ELUNVERA-owned shipped code.
+
+Read `AGENTS.md` and the product/technical documents before making changes.
+
+The current executable relationship-activation queue is a Draft, loopback-only Python/in-memory prototype. It starts empty, has no production identity or persistence, and must not be described as the Rust/PostgreSQL target architecture or as a released service.

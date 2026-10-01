@@ -1,71 +1,252 @@
-# Product / Technical Commercialization Gap Baseline
+# ELUNVERA Product–Technical Gap Baseline
 
-**Repository:** ContextualWisdomLab/ELUNVERA  
-**Evidence date:** 2026-09-02  
-**PR:** #1 `product/first-slice-activation-queue` targeting canonical `main`  
-**Implementation evidence:** current writer branch; re-fetch the resulting exact PR head and exact-head Checks before any merge claim.  
-**Product state:** Very early-stage, executable prototype, not production-ready.
+- **Baseline version:** 0.5
+- **Observed date:** 2026-10-01
+- **Repository:** `ContextualWisdomLab/ELUNVERA`
+- **Target integration branch:** `main`
+- **Evidence scope:** live repository/PR state plus this Draft foundation's PRD, TRD, architecture, data model, API/event contracts, UX, test strategy, ADRs, and source-license proposal
 
-## Feature specification
+## 1. Executive status
 
-ELUNVERA owns a Relationship Activation bounded context. The current feature surface renders an Activation Queue and accepts Activate, Reschedule, and Dismiss transitions for known relationship records. The customer-facing intent is to make the next move visible, explain why it matters now, and preserve an action receipt. Runtime startup is intentionally empty; production code does not consume bundled synthetic/demo relationship data.
+ELUNVERA is a public, non-fork, very-early-stage repository whose protected `main` branch remains at the bootstrap revision. This Draft now preserves both valid deltas: the product/technical foundation and the executable relationship-activation prototype. The loopback Python server, in-memory queue, and static browser surface start empty and use anonymized fixtures only in tests. They are not the Rust/PostgreSQL production boundary. No production runtime, database migration, customer deployment, benchmark, protected-main integration, or immutable release exists.
 
-The current browser surface distinguishes “no relationships available” from “all work completed,” exposes status/empty changes through polite status live regions, keeps buyer copy free of internal repository boundaries, and serves only the explicitly required product HTML/CSS/JavaScript paths. Repository documentation, workflow files, dependency manifests, and arbitrary repository-root paths are not exposed through the prototype HTTP server.
+**Current honest classification:** `integrated Draft foundation plus executable prototype / pre-production`.
 
-Relationship source facts now fail closed instead of being silently coerced into buyer-visible state. `relationship_id`, `from_party`, `to_party`, `kind`, `next_move`, and `why_now` require non-empty strings; `due` requires a real ISO date; `status` must be a known activation status; optional `lineage_cite`, when present, must be a non-empty string. Duplicate snapshots with the same `relationship_id` are rejected. `activated` and `dismissed` are terminal states: repeated Activate, Reschedule, or Dismiss commands fail closed instead of rewriting a completed decision. The HTTP command boundary also rejects non-string JSON `action` values before domain dispatch rather than coercing numbers, booleans, nulls, arrays, or objects with `str(...)`. These are in-memory/prototype invariants only; durable tenant-scoped uniqueness, concurrency, immutable receipts, and idempotency remain unimplemented.
+The repository must not be described as alpha, beta, production-ready, secure, compliant, scalable, accessible, internationally complete, or commercially validated until the corresponding implementation and evidence exist. Current exact-head workflow/review status belongs to the live PR evidence and must be re-fetched after every push; queued, skipped, startup-failed, or predecessor-head results are not passing evidence.
 
-## DDD / context map
+## 2. Product definition and DDD boundary
 
-Core subdomain: Relationship Activation. Supporting subdomain: Interaction/Delivery. Upstream authorities are keyverse (identity), LineageWeave (provenance), RankWeave (retrieval), ConceptWeave/semantic-data-portal (semantic publication/catalog), and Orgmetra (employment/organization truth). Integrations require released contracts through ACLs; cross-service SQL, copied source, and temp-branch dependencies are prohibited.
+ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence system of record. Its **core subdomain** is governed commercial relationship truth and action: tenant-scoped commercial accounts, parties, relationships, interactions, commitments, opportunities, customer outcomes, complaints, privacy workflow, audit, and evidence-linked human decisions.
 
-Aggregate: `RelationshipActivation`. Value objects: `RelationshipReference`, `ActivationMove`, `DueDate`, `WhyNow`, `LineageReference`. Read projection: `ActivationQueue`. Domain event: immutable `ActivationReceipt`. One command transaction modifies at most one aggregate; durable delivery must be idempotent. Aggregate invariants currently include one unique non-empty `relationship_id` per snapshot set, non-empty buyer-visible source facts, valid due/status input, typed provenance references, terminal-state immutability, and a typed action command at the HTTP ACL; persistence must carry them without silent overwrite or last-write-wins loss.
+Supporting subdomains include authorization-context consumption, integration mapping/outbox, search projections, model evidence, and ELUNVERA-owned UI translation resources. Generic capabilities such as identity, LLM routing, ontology/catalog publication, retrieval fusion, message threading, and general work execution remain with their released ContextualWisdomLab owners and are consumed only through versioned contracts and ACLs.
 
-## Proposed persistence ERD
-
-No database is implemented. Proposed 3NF responsibilities, subject to test-first migration evidence:
+### Bounded contexts and context map
 
 ```text
-relationship_record 1 --- * relationship_party
-relationship_record 1 --- * activation_move
-activation_move      1 --- 0..1 activation_receipt
+Keyverse ──ACL──> Authorization Context
+                    │
+                    v
+Account Registry <──> Party Registry <──> Relationship Registry
+       │                    │                    │
+       ├──────────────> Interaction Timeline <──┤
+       ├──────────────> Commitment Registry <───┤
+       └──────────────> Opportunity Management ─┤
+                                             Customer Outcomes / Complaints
+                                                      │
+                          Privacy Rights <─────────────┤
+                          Audit & Provenance <─────────┤
+                          Translation Resources ───────┤
+                                                      v
+                 rebuildable Search / Model Evidence / Integration Outbox
+                         │              │                │
+                         v              v                v
+                   RankWeave     contextual-orchestrator   released provider/CWL APIs
 ```
 
-All concrete persistence objects must use semantically specific names. Tenant scoping, uniqueness, immutable receipt constraints, item-level UPSERT/idempotency, lock/contention behavior, migrations, and backup/restore are unresolved.
+The aggregate boundary is the smallest transactionally consistent business object; ELUNVERA does not create a shared-kernel monolith across account, relationship, opportunity, privacy, translation, or external products. External/legacy dependencies are isolated behind ACLs. Translation resource publication is separate from ontology label publication and never changes product-domain ubiquitous language.
 
-## Gap register
+## 3. Traceability matrix
 
-| Gap | Owner | Current evidence | Action | Status / next verification |
-| --- | --- | --- | --- | --- |
-| Product authority / foundation integration | ELUNVERA | PR #2 carries the broader PRD/TRD/API/data/security/UX foundation and targets protected `main`; PR #1 independently carries lowercase PRD/TRD. The previous ADR-number collision is repaired: the activation decision is Proposed ADR `0017`, after PR #2's `0001`–`0016` range | Preserve both valid deltas; make PR #2 the foundation prerequisite, then non-destructively reconcile PR #1 runtime requirements into the canonical PRD/TRD/ADR index and remove duplicate document authority only after carryover is proven | **Partially mitigated** — ADR collision repaired; canonical-document integration remains open |
-| Production data source | ELUNVERA | Prototype runtime is in-memory and starts empty; bundled synthetic runtime data removed; malformed buyer-visible source facts fail closed | Define `RelationshipActivationRepository` port, RED tests, 3NF PostgreSQL adapter and real-data ingestion path that preserves snapshot validation | **Open** — exact-head tests, restart durability, no synthetic runtime path |
-| Tenant identity / authorization | keyverse + ELUNVERA ACL | No production identity integration | Read keyverse released PRD/API; implement ACL only against immutable release and enforce tenant authorization | **Open** — fail closed until released contract is available |
-| Aggregate identity/state | ELUNVERA | Test-first guards require semantic non-empty identity/text fields, reject duplicate snapshots, validate ISO due/known status and provenance reference type, reject non-string HTTP action commands, and reject all transitions after activated/dismissed | Carry uniqueness, source-fact, typed-command and transition invariants into tenant-scoped repository/schema/API contracts and explicit item-level UPSERT/concurrency semantics | **Partially mitigated** — durable uniqueness/concurrency/terminal-race tests required |
-| Immutable action receipts / idempotency | ELUNVERA | Prototype mutates process memory only; terminal states prevent repeated local mutation but there is no durable receipt/key | Persist immutable `activation_receipt`; explicit command idempotency key and item UPSERT tests | **Open** — duplicate delivery/restart tests required |
-| Provenance link | LineageWeave + ELUNVERA ACL | Optional `lineage_cite` is a typed non-empty foreign reference only; no released contract integration | Consume released provenance identifier/receipt contract through ACL; never write lineage edges | **Open** — contract/version/conformance test required |
-| HTTP exposure boundary | ELUNVERA | Test-first allowlist serves only index + required CSS/JS + queue API; internal repo files return 404; JSON action values are type-checked before domain dispatch | Keep route allowlist and typed-command regression coverage as runtime changes | **Mitigated in prototype** — exact-head CI/security scan still required |
-| Buyer-facing empty/action copy | ELUNVERA | Empty state is truthful/actionable, uses polite status semantics; internal repo names removed | Browser/E2E audit focus, focus-not-obscured, screen reader, responsive and error scenes | **Partially mitigated** — no accessibility conformance claim |
-| Async production web runtime | ELUNVERA | `ThreadingHTTPServer` loopback prototype only | Replace/encapsulate with production non-blocking boundary; preserve domain port | **Open** — realistic E2E evidence required |
-| Performance | ELUNVERA | No k6 evidence | Define realistic concurrent workload, profile/fix bottlenecks, record page p95 | **Open** — p95 <=20 ms per buyer-facing page before success claim |
-| UX/accessibility | ELUNVERA | Static prototype; live-region/empty-state regression exists but no full audit | Product-owned reusable components/Storybook; keyboard, focus, screen-reader, responsive, empty/loading/error/permission screenshots/E2E | **Open** |
-| Internationalization | ELUNVERA / shared translation owner if released | No DB-backed versioned resource contract | Establish screen-key resource API/cache and ko/en/ja/zh/vi/es/de/fr coverage without shipping full catalog | **Open** |
-| Security/compliance | ELUNVERA + .github | Bounded request parsing and route allowlist exist; exact-head organization CodeQL evidence has repeatedly shown pre-job `startup_failure`, while other required lanes have remained queued | Keep leaf controls intact; track the organization Actions incident in `.github#712` and validate recovery only when exact-head jobs materialize/run | **Open** — no queued/startup-failure/predecessor evidence counts as success |
-| Operability / deployment | ELUNVERA | Local loopback process only | Compose Docker/Podman/Colima path, health/readiness, migrations, backup/restore/rollback and hardware-aware DB config | **Open** |
-| Release | ELUNVERA + .github | No immutable product release | Complete gates, CHANGELOG/versioning/provenance, public release after ordinary governance | **Open** |
+| Product concern | Product requirement | Technical decision | Contract/data | Current implementation | Required next evidence |
+|---|---|---|---|---|---|
+| Account continuity | PRD FR-001–005 | modular account registry | `commercial_account`, account APIs | none | Rust API, migration, E2E |
+| Stakeholder history | FR-010–013 | first-class bitemporal relationship | relationship tables/events | loopback Activation Queue prototype is integrated with the Draft foundation; it remains in-memory and non-tenant-aware | Rust domain boundary, temporal/property/DB tests, and protected integration |
+| Interaction context | FR-020–024 | metadata projection, source refs | interaction/commitment APIs | none | released provider/CWL contract tests |
+| Opportunity truth | FR-030–035 | versioned process and immutable snapshots | opportunity tables/events | none | stage and exact-money tests |
+| Complaints/outcomes | FR-040–043 | structured complaint/outcome modules | complaint/outcome APIs | none | ISO-aligned E2E evidence |
+| Search/intelligence | FR-050–053 | rebuildable projection and model claims | search/model jobs | none | retrieval and unsupported-claim tests |
+| Privacy/rights | FR-060–064 | purpose-aware field selection | rights/retention models | none | PIPA/GDPR profile review and E2E |
+| Administration | FR-070–073 | versioned configuration and capability adapters | admin/provider contracts | none | item-level idempotency/replay tests |
+| Tenant isolation | NFR security | Keyverse + RLS | auth context | none | adversarial cross-tenant suite |
+| Availability | NFR reliability | operability and restore contracts | health/SLO/runbook | none | live telemetry and restore rehearsal |
+| Page performance | NFR-010–013 | async long work; profile causal page path | k6 buyer-page evidence | none | realistic every-page p95 ≤ 20 ms |
+| Accessibility | NFR-030–033 | WCAG 2.2 AA + Storybook | UX/design system | none | Figma, screenshots, AT audit |
+| Internationalization | NFR-032 | DB-backed versioned resources; screen-key delivery | translation revision contract | none | ko/en/ja/zh/vi/es/de/fr Storybook/E2E |
+| Scientific scoring | P-05 | Rust + TEPP/fast-mlsirm, no heuristics | model artifact/claim | none | validation study and model release gate |
 
-## Evidence-backed actions completed in this iteration
+## 4. Commercialization gap register
 
-The runtime-synthetic-data sub-gap was repaired test-first: `test_default_runtime_queue_starts_empty` was committed before the runtime change, HTTP tests inject anonymized fixtures, and the shipped demonstration-data file was deleted. The customer empty state was then repaired test-first so zero records no longer imply that every due relationship was completed. Buyer-facing copy is guarded against leaking internal product/repository names, and an HTTP-boundary regression preceded the explicit product-asset allowlist.
+### G-001 Repository governance
 
-The aggregate sub-gap was repaired test-first in three stages. RED coverage first established that duplicate `relationship_id` snapshots and non-string/blank identities must fail closed; production then enforced those identity invariants. RED cases for malformed source due/status snapshots and repeated transitions after terminal activation preceded the production guards. A further RED slice then covered non-string/blank buyer-visible party/move/evidence facts and malformed optional provenance references before production stopped coercing them. This prevents silent aggregate replacement, queue-order corruption, malformed customer copy, bogus provenance references, and local rewriting of completed activation decisions, but does not claim persistent uniqueness, multi-tenant correctness, idempotent delivery, restart durability, or concurrent command safety.
+**Owner:** ELUNVERA + organization control plane where causal.
 
-The HTTP ACL received a further test-first repair: `test_post_rejects_non_string_action_without_coercion` was committed before the production boundary changed. The handler now rejects non-string JSON action values explicitly instead of turning them into strings before domain validation. This closes a concrete input-contract ambiguity while keeping missing/unknown string actions on the existing domain-error path.
+**Current evidence:** `main` remains the canonical protected integration authority. The Draft foundation targets `main`; exact head `223228fd5ad8e37f6c5448ac6537dee9ae1c8598` had terminal GREEN document-contract, Security, and SAST runs, while CodeQL run `33889504891` was cancelled and qualifying approval remained absent when observed on 2026-10-01. Document-contract CI validates canonical branch authority and fails closed on performance/i18n contract drift.
 
-Live repository evidence establishes PR #2 as the broader documentation/contract foundation. The activation ADR has therefore been non-destructively renumbered from the colliding `0001` slot to Proposed ADR `0017`, with README/TRD references migrated before the old path was retired. PR #1 still carries separate lowercase PRD/TRD files, so canonical authority integration remains a prerequisite rather than a reason to close either PR.
+**Gap:** exact-head required workflow completion, current semantic review, release-policy evidence, and any repository-specific ownership controls not centrally supplied remain unproven.
 
-The product CI was also repaired so pull-request validation is not restricted to stale named base branches: all PR bases are eligible, pushes are limited to canonical `main`, and exact checkout verification remains mandatory. This preserves exact-head validation when PR #1 is later stacked on its verified foundation prerequisite. The organization-level CodeQL pre-job startup failure was not bypassed; ELUNVERA was added test-first as a canary to the existing `.github` Actions queue-health owner PR and the exact incident evidence was attached to `.github#712`.
+**Action:** preserve protected `main`, exact-head checks, independent review, and central reusable workflows; never weaken a leaf gate to compensate for hosted-runner or workflow-materialization failure.
 
-These changes do **not** close the production-data-source, accessibility, security, production-runtime, persistence, or foundation-integration gaps. Exact-head workflow results and qualifying independent review remain required after the final documentation commit.
+**Exit evidence:** unchanged exact-head required checks plus ordinary protected integration.
 
-## Next highest-leverage bounded slice
+### G-002 Executable production foundation
 
-First reconcile the remaining foundation/runtime dependency without losing either PR’s valid delta: get PR #2’s canonical-main document contract evidence current, then integrate PR #1 atop that authority and collapse duplicate PRD/TRD authority into the canonical documents with proven carryover. After that, implement the durable repository contract without extending the prototype into an accidental Python production monolith. Start RED tests for tenant-scoped repository semantics, immutable receipt/idempotency, terminal-command races and restart durability; then select the production PostgreSQL/runtime boundary consistent with the Rust-default performance/security policy. Persistence must use semantically named 3NF objects, explicit item UPSERT behavior, migration rollback and backup/restore evidence. Keep keyverse and other upstream dependencies behind ports until immutable owner releases are available.
+**Owner:** ELUNVERA.
+
+**Current evidence:** a loopback Python/in-memory Activation Queue prototype plus static browser surface has complete local Python/browser test coverage on its source branch. It is not production architecture.
+
+The carried prototype invariants are explicit: semantic `relationship_id` values are non-empty and unique within a snapshot set; buyer-visible party, kind, next-move, due, why-now, status, and optional provenance fields fail closed on malformed input; due values are real ISO dates; only known states are accepted; activated/dismissed relationships are terminal; HTTP actions must be strings; and one command mutates at most one aggregate. The loopback server serves only the product HTML/CSS/JavaScript and queue routes, so repository documents, workflows, dependency manifests, and arbitrary root paths remain outside the customer surface. These are in-memory/prototype controls, not durable tenant, concurrency, receipt, or release evidence.
+
+**Gap:** no Rust workspace, tenant-aware production domain/API boundary, or durable adapter exists.
+
+**Action:** preserve the prototype as bounded interaction evidence, then build the smallest Rust relationship-activation domain/API slice test-first rather than extending the Python adapter into production.
+
+**Exit evidence:** Rust build/lint/unit/property/doc/coverage results on exact source.
+
+### G-003 PostgreSQL lifecycle
+
+**Owner:** ELUNVERA.
+
+**Gap:** no migration, RLS, temporal constraint, pool, item-level UPSERT implementation, hot-lock evidence, backup, or restore.
+
+**Action:** pin supported PostgreSQL 18.x, create 3NF multi-word persistence objects, RLS, temporal constraints, outbox, explicit item-level UPSERT/idempotency, contention tests, clean/upgrade rehearsal, encrypted backup, and restore validation.
+
+**Exit evidence:** PostgreSQL integration, lock/contention, migration, backup, and restore artifacts.
+
+### G-004 Keyverse integration
+
+**Owner:** Keyverse for released identity contract; ELUNVERA for product-owned login/signup/recovery UI and ACL.
+
+**Gap:** no OIDC/JWKS/SCIM implementation or product authentication forms.
+
+**Action:** consume only immutable released Keyverse contracts; implement exact issuer/audience/token validation and immutable authorization context; keep CRM party identity distinct from authentication subject.
+
+**Exit evidence:** negative token, tenant, recovery, CSS/action-edge, and integration tests.
+
+### G-005 Account and relationship UX
+
+**Owner:** ELUNVERA.
+
+**Gap:** no Figma file, product-owned reusable component system, Storybook, production UI, screenshots, or accessibility evidence.
+
+**Action:** create the three-band account experience in Figma, record file ID in ADR, implement design tokens/product-owned components and Storybook normal/loading/empty/error/permission/responsive/interaction states, then run full screenshot/E2E/AT audit.
+
+**Exit evidence:** reviewed Figma, Storybook, screenshots, interaction tests, and WCAG evidence.
+
+### G-006 Provider and CWL contracts
+
+**Owner:** canonical supplier for reusable defects; ELUNVERA for consumer ACLs/adapters.
+
+**Gap:** adapters and consumer contracts do not exist.
+
+**Action:** consume only released immutable contracts. For an immature owner, use a port/ACL/feature flag/test double until owner RED→fix→GREEN→immutable release; never copy owner source, read owner DB, or bind to a temporary branch.
+
+**Exit evidence:** supplier release plus consumer conformance, duplicate/reorder, outage, and reconciliation tests.
+
+### G-007 Privacy operation
+
+**Owner:** ELUNVERA.
+
+**Gap:** purpose, rights, retention, hold, export, and disposition are documentation only.
+
+**Action:** implement policy decision receipts and complete rights/disposition workflows before production PII; use least privilege, encryption, field selection, purpose limitation, and audit rather than destructive masking where masking breaks legitimate work.
+
+**Exit evidence:** jurisdiction-reviewed policy plus realistic rights and non-masking-protection tests.
+
+### G-008 Security and supply chain
+
+**Owner:** `.github` for reusable controls; ELUNVERA for thin callers/product evidence.
+
+**Gap:** the executable prototype has product CI, but no release artifact, production dependency inventory, SBOM/provenance/signature, penetration evidence, or production runtime exists.
+
+**Action:** use released central workflows, exact pins, minimal permissions, fail-closed dependency/security gates, and signed release pipeline when runtime arrives.
+
+**Exit evidence:** current-head checks, SBOM/provenance, signatures, and tested release candidate.
+
+### G-009 Operability
+
+**Owner:** ELUNVERA.
+
+**Gap:** no health endpoints, telemetry, SLO, alert, capacity, incident, compose deployment, or recovery runtime.
+
+**Action:** implement liveness/startup/readiness, async cancellation, OTLP, low-cardinality metrics, queue/backpressure, Compose for Docker/Podman/Colima, measured hardware tuning, runbooks, and recovery rehearsal. Verify `close_connection` assumptions in any framework/adapter before relying on them.
+
+**Exit evidence:** SLO dashboard, realistic capacity run, and operational drill receipts.
+
+### G-010 Model governance and measurement
+
+**Owner:** ELUNVERA model domain plus released TEPP/fast-mlsirm/contextual-orchestrator contracts.
+
+**Gap:** no model, dataset, benchmark, validity, fairness, or calibration evidence.
+
+**Action:** release no score until outcome/population/sampling design/error target/failure denominator are defined; keep production numerical computation in Rust, model multilevel/multiple-membership/time structure where relevant, and prohibit heuristic weights.
+
+**Exit evidence:** model card, true-parameter recovery/validation, calibration/error analysis, and monitoring.
+
+### G-011 Commercial and legal readiness
+
+**Owner:** ELUNVERA/product/legal.
+
+**Current proposed slice:** Apache License 2.0 for ContextualWisdomLab-authored source/docs under Proposed ADR-0013.
+
+**Gap:** no trademark evidence, terms, DPA, support policy, pricing, entitlement, billing integration, dependency/asset inventory, or sellable deployment.
+
+**Action:** complete legal/commercial package only after protected foundation/runtime evidence.
+
+**Exit evidence:** protected-main license/ADR integration plus reviewed commercial package and exact distributable SBOM/license/attribution evidence.
+
+### G-012 Product validation
+
+**Owner:** ELUNVERA product.
+
+**Gap:** no customer interviews, usability data, activation, retention, willingness-to-pay, or outcome study.
+
+**Action:** validate account-preparation, opportunity-review, and complaint-recovery jobs with target users and measure time-to-context, evidence coverage, correction rate, workflow outcome, and willingness-to-pay.
+
+**Exit evidence:** research protocol and anonymized findings.
+
+### G-013 Every-page performance contract
+
+**Owner:** ELUNVERA.
+
+**Evidence:** PRD/TRD/Test Strategy now require realistic every-buyer-page k6 p95 ≤ 20 ms; the permanent document-contract workflow prevents regression to weaker page targets.
+
+**Gap:** only the loopback prototype runtime exists and it has no k6 buyer-page evidence, so no latency claim is proven.
+
+**Action:** when the production UI/runtime starts, measure the full declared page denominator including DB/query/render/bundle/heap/DOM/hydration/main-thread/GC and cold/cache profile. Fix the causal algorithm/query/I/O/render/runtime/Rust hot path; never shrink data, omit slow samples, or use unrealistic warmup.
+
+**Exit evidence:** exact-head k6 artifacts for every buyer-facing page at p95 ≤ 20 ms.
+
+### G-014 Translation-resource authority and eight-locale delivery
+
+**Owner:** ELUNVERA unless a separately released reusable CWL translation product later proves common ownership.
+
+**Evidence:** PRD/TRD/UX/Test Strategy now specify `ko/en/ja/zh/vi/es/de/fr`, DB-backed versioned translation resources, screen-key-scoped server/native fetch/cache, review/approval/deploy/rollback, and separation from ontology labels.
+
+**Gap:** no schema/API/admin UI/cache/locale assets or Figma/Storybook/E2E evidence exists.
+
+**Action:** implement `translation_resource`, `translation_revision`, and `translation_text` in 3NF with immutable approved revisions, explicit draft item UPSERT, revision-aware cache invalidation, product-owned admin UI, and locale-specific interaction/screenshot tests.
+
+**Exit evidence:** migration/API/admin UI + eight-locale Storybook/E2E + rollback and cache-invalidation receipts.
+
+### G-015 Tracked-text hygiene
+
+**Owner:** ELUNVERA.
+
+**Evidence:** the previous exact-head document-contract workflow was GREEN even though a full PR-range `git diff --check` reported trailing whitespace in this baseline. The workflow's checkout-time `git diff --check` inspected only an empty working-tree diff.
+
+**Gap:** formatting regressions in committed tracked text were not enforced by the permanent gate.
+
+**Action:** validate every tracked non-binary file for trailing spaces or tabs, clean the current tree, and keep the check in the permanent document-contract workflow.
+
+**Exit evidence:** the strengthened validator and full PR-range `git diff --check` both pass on the same exact head.
+
+## 5. Highest-leverage implementation order
+
+```text
+canonical-main governance and foundation integration
+→ reconcile stacked Relationship Activation delta without loss
+→ identity and tenant boundary
+→ PostgreSQL account/party/relationship kernel
+→ audit, outbox, idempotency, temporal APIs
+→ translation-resource authority + eight-locale component contract
+→ three-band account UX + every-page k6 p95 ≤ 20 ms
+→ opportunity and commitment vertical
+→ complaints, outcomes, and privacy workflows
+→ bounded released CWL integrations
+→ validated relationship intelligence
+→ scale, security, accessibility, recovery, and commercial GA
+```
+
+## 6. Release truth
+
+This Draft documentation baseline fixes contradictory weak latency and two-locale requirements by making the current commercialization contract executable in document CI. It still closes none of the runtime, PostgreSQL, security, privacy, accessibility, model-validity, scalability, operational, broader legal/commercial, or market-validation gaps above. No release exists until an exact protected executable source and its required artifact, dependency, SBOM, provenance, review, performance, locale, accessibility, security, and operational evidence are independently established.

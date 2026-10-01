@@ -1,35 +1,97 @@
 # ELUNVERA
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ContextualWisdomLab/ELUNVERA)
+
 > **Every Link, Understood. Every Relationship, Activated.**
 
-ELUNVERA is ContextualWisdomLab's relationship-activation product. It keeps the next move on a known relationship visible and actionable.
+ELUNVERA is an evidence-centered enterprise CRM and relationship-intelligence platform. It gives customer-facing teams a governed system of record for commercial accounts, stakeholders, interactions, commitments, opportunities, customer outcomes, and the decisions that connect them.
 
-The current branch is an executable **prototype**, not a production CRM service. Runtime startup is intentionally empty: production code never loads bundled synthetic customer or relationship records. Tests inject anonymized fixtures explicitly.
+ELUNVERA is not an email host, a calendar server, an ERP, a billing engine, a project-management suite, or an autonomous sales agent. It composes those capabilities through explicit ContextualWisdomLab contracts while preserving a narrow source-of-truth boundary.
 
-This repository uses GitHub flow: product pull requests target `main` and squash-merge after exact-head checks and qualifying review. `develop` is not a release authority.
+## Product promise
 
-## Product boundary
+ELUNVERA helps a user answer four questions without reconstructing context manually:
 
-| Product | Owns | ELUNVERA does not |
-| --- | --- | --- |
-| LineageWeave | lineage/provenance DAG | invent a second lineage graph |
-| RankWeave | retrieval fusion/evaluation | rank or search corpora |
-| ConceptWeave / semantic-data-portal | semantic generation/release and catalog governance | become an ontology/catalog authority |
-| Orgmetra | employment/organization truth | store jobs, org charts, or employment records |
-| keyverse | identity/federation/token contracts | invent another identity authority |
+1. **What changed in this relationship?**
+2. **Why does it matter now?**
+3. **What commitment or decision is at risk?**
+4. **What is the next defensible action, and what evidence supports it?**
 
-ELUNVERA owns relationship activation: a known relationship, its next move, why the move is due, and the action receipt. Neighbor integrations must use released contracts through ACLs; ELUNVERA must not copy source or query another product's database.
+## Initial product boundary
 
-See [ADR 0017](docs/adr/0017-relationship-activation-home.md), [PRD](docs/prd.md), [TRD](docs/trd.md), [ARCHITECTURE](ARCHITECTURE.md), and the [commercialization gap baseline](docs/product-technical-gap-baseline.md).
+ELUNVERA owns:
 
-## Run the prototype surface
+- tenant-scoped commercial accounts and account-role history;
+- people, organizations, contact points, and time-valid relationship facts;
+- account-team assignments;
+- interaction and evidence references;
+- commitments and relationship actions;
+- opportunities, stage history, stakeholder participation, values, and forecast snapshots;
+- customer outcomes, complaints, satisfaction observations, and relationship assessments;
+- purpose, communication preference, retention, audit, and data-rights workflow metadata.
+
+ELUNVERA consumes but does not own:
+
+- identity and federation from **Keyverse**;
+- customer-owned email, calendar, and file interaction from **naruon**;
+- RFC email threading from **ThreadWeave**;
+- inferred record lineage from **LineageWeave**;
+- retrieval fusion from **RankWeave**;
+- LLM routing and evaluation from **contextual-orchestrator**;
+- temporal measurement from **TEPP** and psychometric calibration from **fast-mlsirm**;
+- ontology and catalog context from **semantic-data-portal**;
+- generalized project and issue execution from **ScopeWeave**;
+- commercial entitlement and billing truth from **billing-control-plane**.
+
+## Documentation map
+
+| Document | Purpose |
+|---|---|
+| [`docs/PRD.md`](docs/PRD.md) | Product vision, users, requirements, scope, and release criteria |
+| [`docs/TRD.md`](docs/TRD.md) | Technical requirements and platform constraints |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System boundaries, components, trust zones, and deployment model |
+| [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) | Canonical entities, temporal facts, ERD, and data invariants |
+| [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md) | HTTP, event, idempotency, pagination, and compatibility contracts |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | Security architecture and control baseline |
+| [`docs/PRIVACY.md`](docs/PRIVACY.md) | Purpose limitation, data rights, retention, and disclosure rules |
+| [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md) | Assets, actors, abuse cases, and mitigations |
+| [`docs/TEST_STRATEGY.md`](docs/TEST_STRATEGY.md) | TDD, coverage, contract, security, and realistic validation |
+| [`docs/OPERABILITY.md`](docs/OPERABILITY.md) | SLOs, telemetry, backup, restoration, and incident response |
+| [`docs/UX_SPEC.md`](docs/UX_SPEC.md) | Customer-facing information architecture and interaction principles |
+| [`docs/product-technical-gap-baseline.md`](docs/product-technical-gap-baseline.md) | Current implementation truth and prioritized gaps |
+| [`docs/adr/README.md`](docs/adr/README.md) | Architecture decision index |
+| [`docs/doctoring/REFERENCES.md`](docs/doctoring/REFERENCES.md) | APA 7th research and standards bibliography |
+| [`LICENSE`](LICENSE) | Apache License 2.0 grant for ELUNVERA-authored source and documentation |
+
+## Development status
+
+This Draft branch combines the product/technical foundation with a small executable **relationship-activation prototype**. The loopback Python server, in-memory queue, and static browser surface start empty; anonymized records exist only in tests. They are prototype evidence, not the Rust/PostgreSQL production architecture. No production service, database migration, connector, benchmark result, certification, immutable release, or protected-`main` integration exists yet. The implementation sequence is defined in [`docs/ROADMAP.md`](docs/ROADMAP.md) and the executable plan in [`docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md`](docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md).
+
+### Run the prototype
 
 ```bash
 python3 scripts/serve.py
 ```
 
-Open http://127.0.0.1:8765/. An empty queue is the correct startup state until a real-data repository adapter is implemented.
+Open `http://127.0.0.1:8765/`. An empty queue is the correct startup state until a real-data repository adapter is implemented.
 
 ```bash
 python3 -m pytest -q
+node --test tests/test_app.mjs
 ```
+
+## Working conventions
+
+- Primary integration branch: `main`
+- Review flow: feature branch → current-head checks → independent review → squash merge
+- Database object names: two or more words in `snake_case`
+- Production arithmetic and model computation: Rust
+- API source: OpenAPI 3.2.0
+- Event source: AsyncAPI 3.1.0 with CloudEvents 1.0 envelopes
+- Database baseline: PostgreSQL 18.6 or later supported 18.x security release
+- Accessibility target: WCAG 2.2 AA
+- Quality target for shipped ELUNVERA-owned code: 100% production statement coverage, 100% production branch coverage, and 100% public API documentation coverage
+
+## License
+
+ContextualWisdomLab-authored ELUNVERA source and documentation are licensed under the [Apache License 2.0](LICENSE). The license grant does not assert trademark registration and does not relicense third-party standards, dependencies, generated assets, datasets, models, provider services, or future imported material. Those components retain their own terms and require independent provenance and commercial-license review before incorporation or distribution.

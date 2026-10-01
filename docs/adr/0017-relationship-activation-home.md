@@ -2,7 +2,7 @@
 
 - **Status:** Proposed
 - **Date:** 2026-08-27
-- **Reconciled:** 2026-09-02
+- **Reconciled:** 2026-10-01
 - **Scope:** ContextualWisdomLab/ELUNVERA
 
 ## Problem

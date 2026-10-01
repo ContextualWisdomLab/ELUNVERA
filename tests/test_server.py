@@ -49,6 +49,16 @@ TEST_RELATIONSHIPS = [
         "why_now": "A test-only check-in is overdue.",
         "status": "due",
     },
+    {
+        "relationship_id": "contact/a b",
+        "from_party": "Account Delta",
+        "to_party": "Contact Four",
+        "kind": "account-contact",
+        "next_move": "Confirm the encoded identifier boundary",
+        "due": "2026-09-30",
+        "why_now": "A test-only encoded route must round-trip.",
+        "status": "due",
+    },
 ]
 
 
@@ -250,6 +260,25 @@ def test_post_applies_valid_action(http_server: tuple[str, int]) -> None:
     response_payload = json.loads(payload)
     assert response_payload["relationship_id"] == "rel-001"
     assert "id" not in response_payload
+    assert response_payload["status"] == "activated"
+
+
+def test_post_decodes_the_browser_encoded_relationship_identifier(
+    http_server: tuple[str, int],
+) -> None:
+    """The HTTP boundary must reverse the browser's encodeURIComponent call."""
+
+    body = json.dumps({"action": "activate"}).encode("utf-8")
+    status, _, payload = request(
+        *http_server,
+        "POST",
+        "/api/queue/contact%2Fa%20b",
+        body=body,
+        headers={"Content-Type": "application/json"},
+    )
+    assert status == 200
+    response_payload = json.loads(payload)
+    assert response_payload["relationship_id"] == "contact/a b"
     assert response_payload["status"] == "activated"
 
 
