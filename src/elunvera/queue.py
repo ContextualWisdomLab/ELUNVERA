@@ -143,7 +143,7 @@ class ActivationQueue:
                 **{**current.to_dict(), "status": "rescheduled", "due": due}
             )
         with self._transition_lock:
-            if self._rows.get(relationship_id) != current:
+            if self._rows.get(relationship_id) is not current:
                 raise ValueError(
                     f"relationship {relationship_id} changed concurrently"
                 )
