@@ -1,14 +1,14 @@
 # ELUNVERA Product–Technical Gap Baseline
 
-- **Baseline version:** 0.7
-- **Observed date:** 2026-10-02
+- **Baseline version:** 0.8
+- **Observed date:** 2026-10-03
 - **Repository:** `ContextualWisdomLab/ELUNVERA`
 - **Target integration branch:** `main`
 - **Evidence scope:** live repository/PR state plus this Draft foundation's PRD, TRD, architecture, data model, API/event contracts, UX, test strategy, ADRs, and source-license proposal
 
 ## 1. Executive status
 
-ELUNVERA is a public, non-fork, very-early-stage repository whose protected `main` branch remains at the bootstrap revision. This Draft now preserves both valid deltas: the product/technical foundation and the executable relationship-activation prototype. The loopback Python server, in-memory queue, and static browser surface start empty and use anonymized fixtures only in tests. They are not the Rust/PostgreSQL production boundary. No production runtime, database migration, customer deployment, benchmark, protected-main integration, or immutable release exists.
+ELUNVERA is a public, non-fork, very-early-stage repository whose protected `main` branch remains at the bootstrap revision. The canonical PR #1 Draft preserves both valid deltas: the product/technical foundation and the executable relationship-activation prototype. PR #2 exact head `5a514422344d6027d7eb135b660e2dab01379529` is an ancestor of PR #1, so the duplicate predecessor was retired only after its complete commit/tree delta was verified as carried forward. The loopback Python server, in-memory queue, and static browser surface start empty and use anonymized fixtures only in tests. They are not the Rust/PostgreSQL production boundary. No production runtime, database migration, customer deployment, benchmark, protected-main integration, or immutable release exists.
 
 **Current honest classification:** `integrated Draft foundation plus executable prototype / pre-production`.
 
@@ -70,7 +70,7 @@ The aggregate boundary is the smallest transactionally consistent business objec
 
 **Owner:** ELUNVERA + organization control plane where causal.
 
-**Current evidence:** `main` remains the canonical protected integration authority. The Draft foundation targets `main`; exact head `223228fd5ad8e37f6c5448ac6537dee9ae1c8598` had terminal GREEN document-contract, Security, and SAST runs, while CodeQL run `33889504891` was cancelled and qualifying approval remained absent when observed on 2026-10-01. Document-contract CI validates canonical branch authority and fails closed on performance/i18n contract drift.
+**Current evidence:** `main` remains the canonical protected integration authority. At the 2026-10-03 observation point, canonical PR #1 head `a16229f5398af476a32f742f2cf29b9045f7438f` contained PR #2 head `5a514422344d6027d7eb135b660e2dab01379529` as its merge base and ancestor (`ahead 68 / behind 0`), proving complete successor carryover before PR #2 retirement. Product CI, document contracts, Semgrep, Trivy, OSV, and Scorecard succeeded on that observed PR #1 head. Security run `36889125853` failed closed only because the exact-base/head Dependency Review support probe returned HTTP 403; CodeQL run `36889125832` skipped every job, and qualifying approval remained absent. The live PR description owns the post-documentation exact head.
 
 **Gap:** exact-head required workflow completion, current semantic review, release-policy evidence, and any repository-specific ownership controls not centrally supplied remain unproven.
 
@@ -146,7 +146,7 @@ The carried prototype invariants are explicit: semantic `relationship_id` values
 
 **Owner:** `.github` for reusable controls; ELUNVERA for thin callers/product evidence.
 
-**Gap:** the executable prototype has product CI, but no release artifact, production dependency inventory, SBOM/provenance/signature, penetration evidence, or production runtime exists.
+**Gap:** the executable prototype has product CI, but exact-head Dependency Review evidence is unavailable (HTTP 403), CodeQL did not execute, and no release artifact, production dependency inventory, SBOM/provenance/signature, penetration evidence, or production runtime exists.
 
 **Action:** use released central workflows, exact pins, minimal permissions, fail-closed dependency/security gates, and signed release pipeline when runtime arrives.
 
