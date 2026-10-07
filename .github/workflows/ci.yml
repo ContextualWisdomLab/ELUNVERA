@@ -29,6 +29,39 @@ jobs:
           EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
 
+      - name: Set up pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87
+        with:
+          toolchain: "1.97.1"
+          components: clippy, rustfmt, llvm-tools-preview
+
+      - name: Install pinned Rust coverage tool
+        uses: taiki-e/install-action@f7e5d7c961414b23f5b25b2da9294395d08513ad
+        with:
+          tool: cargo-llvm-cov@0.8.5
+
+      - name: Validate Rust foundation
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --workspace --all-targets --all-features -- -D warnings
+          cargo test --workspace --all-features
+          cargo doc --workspace --all-features --no-deps
+          cargo llvm-cov --workspace --all-features --branch --json \
+            --output-path target/llvm-cov-target/coverage.json \
+            --fail-under-lines 100 --fail-under-functions 100 --fail-under-regions 100
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          totals = json.loads(
+              Path("target/llvm-cov-target/coverage.json").read_text(encoding="utf-8")
+          )["data"][0]["totals"]
+          branches = totals["branches"]
+          assert branches["count"] == branches["covered"], branches
+          PY
+
       - name: Set up Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # actions/setup-python@v6
         with:

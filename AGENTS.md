@@ -85,4 +85,4 @@ Never claim a check passed if it is queued, pending, skipped, or was run on an o
 
 ## Current maturity
 
-The Draft branch includes an executable loopback relationship-activation prototype alongside the canonical product/technical foundation. It starts empty and uses anonymized fixtures only in tests. Treat the Python/in-memory implementation as a replaceable prototype adapter, not the Rust/PostgreSQL production boundary or a released contract.
+The Draft branch includes an executable loopback relationship-activation prototype and a dependency-free Rust `domain_contracts` workspace seed alongside the canonical product/technical foundation. Runtime starts empty and uses anonymized fixtures only in tests. The Rust seed is a versioned compile-time boundary, not a tenant-aware service. Treat the Python/in-memory implementation as a replaceable prototype adapter, not the Rust/PostgreSQL production boundary or a released contract.

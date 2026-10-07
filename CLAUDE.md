@@ -33,4 +33,4 @@ Turn scattered customer context into a judgment-ready structure and an evidence-
 
 Read `AGENTS.md` and the product/technical documents before making changes.
 
-The current executable relationship-activation queue is a Draft, loopback-only Python/in-memory prototype. It starts empty, has no production identity or persistence, and must not be described as the Rust/PostgreSQL target architecture or as a released service.
+The current executable relationship-activation queue is a Draft, loopback-only Python/in-memory prototype. A dependency-free Rust `domain_contracts` seed now establishes only the foundation version boundary and its quality gate. Runtime starts empty, has no production identity or persistence, and neither component may be described as the Rust/PostgreSQL target architecture or as a released service.

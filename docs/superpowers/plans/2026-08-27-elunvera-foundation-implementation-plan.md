@@ -34,37 +34,28 @@
 - Create: `rust-toolchain.toml`
 - Create: `crates/domain_contracts/Cargo.toml`
 - Create: `crates/domain_contracts/src/lib.rs`
-- Create: `tests/contract/repository_layout_test.py`
-- Create: `.github/workflows/product.yml`
+- Create: `crates/domain_contracts/tests/contract_version.rs`
+- Modify: `.github/workflows/ci.yml`
 - Modify: `CHANGELOG.md`
 
 **Interfaces:**
 - Produces: workspace crate `domain_contracts`; command `cargo test --workspace`; exact quality workflow.
 
-- [ ] **Step 1: Write the failing repository contract test**
+- [x] **Step 1: Write the failing domain-contract behavior tests**
 
-```python
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[2]
-
-
-def test_foundation_workspace_contract() -> None:
-    required = [
-        ROOT / "Cargo.toml",
-        ROOT / "rust-toolchain.toml",
-        ROOT / "crates/domain_contracts/src/lib.rs",
-        ROOT / ".github/workflows/product.yml",
-    ]
-    assert all(path.is_file() for path in required)
+```rust
+#[test]
+fn rejects_an_unsupported_contract_version() {
+    let error = "0.2.0".parse::<ContractVersion>().unwrap_err();
+    assert_eq!(error.to_string(), "unsupported domain contract version: 0.2.0");
+}
 ```
 
-- [ ] **Step 2: Verify the test fails**
+- [x] **Step 2: Publish the RED contract revision**
 
-Run: `python -m pytest tests/contract/repository_layout_test.py -q`
-Expected: failure because the workspace files do not exist.
+Exact RED revision `0446ea6f184e530d40d3cf61b5f8dc70614d0300` contains the integration tests but no library source. Hosted runs failed before steps materialized, so they are runner-start evidence rather than an executed compiler failure.
 
-- [ ] **Step 3: Create the minimal warning-free workspace**
+- [x] **Step 3: Create the minimal warning-free workspace**
 
 ```rust
 //! Versioned domain contracts shared by ELUNVERA foundation modules.
@@ -72,8 +63,8 @@ Expected: failure because the workspace files do not exist.
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
-/// Contract version implemented by this crate.
-pub const CONTRACT_VERSION: &str = "0.1.0";
+/// The domain-contract version supported by this foundation slice.
+pub struct ContractVersion;
 ```
 
 Pin the stable compiler in `rust-toolchain.toml`, deny warnings in CI, and configure format, Clippy, test, doc, and coverage commands.
@@ -83,11 +74,13 @@ Pin the stable compiler in `rust-toolchain.toml`, deny warnings in CI, and confi
 Run:
 
 ```bash
-python -m pytest tests/contract/repository_layout_test.py -q
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --all-features
-cargo doc --workspace --no-deps
+RUSTDOCFLAGS='-D warnings' cargo doc --workspace --all-features --no-deps
+cargo llvm-cov --workspace --all-features --branch --json \
+  --output-path target/llvm-cov-target/coverage.json \
+  --fail-under-lines 100 --fail-under-functions 100 --fail-under-regions 100
 ```
 
 Expected: all pass without warnings.
@@ -95,7 +88,7 @@ Expected: all pass without warnings.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add Cargo.toml rust-toolchain.toml crates tests .github CHANGELOG.md
+git add Cargo.toml rust-toolchain.toml crates .github .gitignore CHANGELOG.md README.md AGENTS.md CLAUDE.md docs manifest.json
 git commit -m "build: establish Rust foundation quality gate"
 ```
 

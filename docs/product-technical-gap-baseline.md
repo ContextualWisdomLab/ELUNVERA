@@ -1,7 +1,7 @@
 # ELUNVERA Product–Technical Gap Baseline
 
-- **Baseline version:** 0.8
-- **Observed date:** 2026-10-03
+- **Baseline version:** 0.9
+- **Observed date:** 2026-10-07
 - **Repository:** `ContextualWisdomLab/ELUNVERA`
 - **Target integration branch:** `main`
 - **Evidence scope:** live repository/PR state plus this Draft foundation's PRD, TRD, architecture, data model, API/event contracts, UX, test strategy, ADRs, and source-license proposal
@@ -10,7 +10,7 @@
 
 ELUNVERA is a public, non-fork, very-early-stage repository whose protected `main` branch remains at the bootstrap revision. The canonical PR #1 Draft preserves both valid deltas: the product/technical foundation and the executable relationship-activation prototype. PR #2 exact head `5a514422344d6027d7eb135b660e2dab01379529` is an ancestor of PR #1, so the duplicate predecessor was retired only after its complete commit/tree delta was verified as carried forward. The loopback Python server, in-memory queue, and static browser surface start empty and use anonymized fixtures only in tests. They are not the Rust/PostgreSQL production boundary. No production runtime, database migration, customer deployment, benchmark, protected-main integration, or immutable release exists.
 
-**Current honest classification:** `integrated Draft foundation plus executable prototype / pre-production`.
+**Current honest classification:** `integrated Draft foundation plus executable prototype and Rust contract seed / pre-production`.
 
 The repository must not be described as alpha, beta, production-ready, secure, compliant, scalable, accessible, internationally complete, or commercially validated until the corresponding implementation and evidence exist. Current exact-head workflow/review status belongs to the live PR evidence and must be re-fetched after every push; queued, skipped, startup-failed, or predecessor-head results are not passing evidence.
 
@@ -86,11 +86,13 @@ The aggregate boundary is the smallest transactionally consistent business objec
 
 The carried prototype invariants are explicit: semantic `relationship_id` values are non-empty and unique within a snapshot set; buyer-visible party, kind, next-move, due, why-now, status, and optional provenance fields fail closed on malformed input; due values are real ISO dates; only known states are accepted; activated/dismissed relationships are terminal; HTTP actions must be strings; and one command mutates at most one aggregate. The loopback server serves only the product HTML/CSS/JavaScript and queue routes, so repository documents, workflows, dependency manifests, and arbitrary root paths remain outside the customer surface. The prototype serializes competing writes with an in-process snapshot-identity compare-and-set, so concurrent terminal commands and ABA-stale snapshots cannot overwrite an accepted decision. Loopback responses deny framing. After dispatching a command, the UI treats a rejected transport, unreadable HTTP-successful response JSON, or a failed projection refresh as accepted-but-unconfirmed, attempts reconciliation, and keeps the stale action disabled rather than inviting an unsafe retry. RED head `16e583256b63e9c1f9208f6c322b6aa7e37a5381` reproduced the initial lost-update and framing failures; RED head `bfc7b2f08237275ce9d84d796eb0dea3cf4fdcfb` reproduced the ABA stale-write defect; intermediate head `86370d652edce18c26327e604d5ffee163772698` proved the ABA repair and exposed both ambiguous-success browser failures; head `9565da8c4e0c89232566686226977cc234d9a915` implements both second-round repairs; RED head `149dc16d4ef3b4634aea8ba3d4eabea660a650e9` then reproduced unsafe retry after an outcome-ambiguous transport rejection, and successor `67b71860c1c691b4d7ae3f09a0bc6fca5f561012` applies the same fail-closed reconciliation rule. These remain in-memory/prototype controls, not durable tenant, cross-process concurrency, receipt, or release evidence.
 
-**Gap:** no Rust workspace, tenant-aware production domain/API boundary, or durable adapter exists.
+**Current evidence:** the Draft now includes a dependency-free Rust 1.97.1 workspace seed. Its `domain_contracts` crate exposes only the fail-closed version boundary required for later foundation modules. The same exact-head product workflow runs format, Clippy, tests, public documentation, and complete line/function/region/branch coverage for owned Rust code. This is a compile-time contract seed, not a production API or service.
+
+**Gap:** no tenant-aware production domain/API boundary, authorization context, or durable adapter exists.
 
 **Action:** preserve the prototype as bounded interaction evidence, then build the smallest Rust relationship-activation domain/API slice test-first rather than extending the Python adapter into production.
 
-**Exit evidence:** Rust build/lint/unit/property/doc/coverage results on exact source.
+**Exit evidence:** Rust build/lint/unit/property/doc/coverage results on exact source; the workspace seed supplies only the first build/lint/unit/doc/coverage part of that evidence.
 
 ### G-003 PostgreSQL lifecycle
 

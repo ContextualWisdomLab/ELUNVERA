@@ -65,7 +65,7 @@ ELUNVERA consumes but does not own:
 
 ## Development status
 
-This Draft branch combines the product/technical foundation with a small executable **relationship-activation prototype**. The loopback Python server, in-memory queue, and static browser surface start empty; anonymized records exist only in tests. They are prototype evidence, not the Rust/PostgreSQL production architecture. No production service, database migration, connector, benchmark result, certification, immutable release, or protected-`main` integration exists yet. The implementation sequence is defined in [`docs/ROADMAP.md`](docs/ROADMAP.md) and the executable plan in [`docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md`](docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md).
+This Draft branch combines the product/technical foundation with a small executable **relationship-activation prototype** and a dependency-free Rust `domain_contracts` workspace seed. The loopback Python server, in-memory queue, and static browser surface start empty; anonymized records exist only in tests. The Rust seed establishes a version boundary and complete quality gate, but neither part is the Rust/PostgreSQL production architecture. No production service, database migration, connector, benchmark result, certification, immutable release, or protected-`main` integration exists yet. The implementation sequence is defined in [`docs/ROADMAP.md`](docs/ROADMAP.md) and the executable plan in [`docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md`](docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md).
 
 ### Run the prototype
 

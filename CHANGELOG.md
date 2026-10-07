@@ -8,6 +8,7 @@ The format follows Keep a Changelog principles, and versioning will begin when t
 
 ### Added
 
+- A pinned Rust 1.97.1 workspace seed with a fail-closed `domain_contracts` version boundary and exact CI gates for format, Clippy, tests, documentation, and complete line/function/region/branch coverage.
 - The first executable relationship-activation prototype: an in-memory queue, loopback-only HTTP boundary, static browser surface, and anonymized Python/browser tests with complete owned-code coverage.
 - Proposed ADR-0017 for the Activation Queue aggregate, command transitions, immutable receipt direction, and ecosystem anti-corruption boundaries.
 - Initial ELUNVERA product and technical documentation baseline.
