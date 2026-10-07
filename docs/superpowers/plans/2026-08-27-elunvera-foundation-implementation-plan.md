@@ -85,7 +85,9 @@ cargo llvm-cov --workspace --all-features --branch --json \
 
 Expected: all pass without warnings.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit the source-bearing implementation**
+
+Exact source-bearing revision: `bc5f289d04fa278f941e20e15a2fd79318d7ae9f`. Hosted product/document jobs failed before runner admission (`runner_id=0`, `steps=[]`, no log blob), so Step 4 remains open and no Rust GREEN claim is made.
 
 ```bash
 git add Cargo.toml rust-toolchain.toml crates .github .gitignore CHANGELOG.md README.md AGENTS.md CLAUDE.md docs manifest.json

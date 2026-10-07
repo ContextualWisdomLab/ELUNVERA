@@ -185,6 +185,7 @@ jobs:
 
           plan_text = Path('docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md').read_text(encoding='utf-8')
           assert plan_text.count('cargo +nightly llvm-cov') == 3
+          assert plan_text.count('cargo llvm-cov --workspace --all-features --branch') == 1
           assert plan_text.count("branches['count'] == branches['covered']") == 3
           assert 'cargo llvm-cov --workspace --branch' not in plan_text
           uml_text = Path('docs/UML.md').read_text(encoding='utf-8')

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "product": "ELUNVERA",
-  "generated_at": "2026-10-07T08:30:24.458Z",
+  "generated_at": "2026-10-07T08:33:14.529Z",
   "algorithm": "sha256",
   "self_excluded": true,
   "file_count": 81,
@@ -32,9 +32,9 @@
     },
     {
       "path": ".github/workflows/document-contracts.yml",
-      "sha256": "bf9417feae4168d8488bd95a7010ef3f0778133ea458277603441a8b1796f3e8",
-      "size_bytes": 12999,
-      "line_count": 262
+      "sha256": "5ea426e250260704c98763659c0eeef0b151b9e3ca5df58415c03295c7e7da48",
+      "size_bytes": 13091,
+      "line_count": 263
     },
     {
       "path": ".gitignore",
@@ -356,15 +356,15 @@
     },
     {
       "path": "docs/product-technical-gap-baseline.md",
-      "sha256": "1f4c01c3237454af22c19fca41ed8ad0ca15629a2edecc00cce719c19d8faa84",
-      "size_bytes": 20239,
+      "sha256": "46c35c79d2122517364d9768a2eb2a9ce648e6c76e3ab27ba669d8b8c6df2332",
+      "size_bytes": 20517,
       "line_count": 254
     },
     {
       "path": "docs/superpowers/plans/2026-08-27-elunvera-foundation-implementation-plan.md",
-      "sha256": "4404761ff6a9e6620043cba127712b2b9c05c32160a97688a28bbe1959c76e56",
-      "size_bytes": 17742,
-      "line_count": 434
+      "sha256": "73555718d5da299dadc30b6f475f017cd6104db4947a7f9f339ed2cc0ae718e4",
+      "size_bytes": 18010,
+      "line_count": 436
     },
     {
       "path": "docs/superpowers/specs/2026-08-27-elunvera-product-technical-baseline-design.md",
