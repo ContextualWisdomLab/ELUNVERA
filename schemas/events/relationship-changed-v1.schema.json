@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.contextualwisdomlab.org/elunvera/events/relationship-changed-v1.schema.json",
+  "title": "ELUNVERA relationship changed event data v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "relationship_id",
+    "aggregate_version",
+    "recorded_at",
+    "truth_status",
+    "valid_from",
+    "participant_references",
+    "change_code"
+  ],
+  "properties": {
+    "relationship_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "aggregate_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Immutable system time when this aggregate version was recorded."
+    },
+    "truth_status": {
+      "enum": [
+        "authoritative",
+        "observed",
+        "inferred",
+        "proposed",
+        "rejected",
+        "superseded",
+        "disputed"
+      ]
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "valid_to": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "participant_references": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 500
+      }
+    },
+    "change_code": {
+      "enum": [
+        "created",
+        "corrected",
+        "closed",
+        "reviewed",
+        "superseded"
+      ]
+    }
+  }
+}
