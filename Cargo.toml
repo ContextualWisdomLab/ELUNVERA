@@ -1,0 +1,17 @@
+[workspace]
+members = ["crates/domain_contracts"]
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+license = "Apache-2.0"
+repository = "https://github.com/ContextualWisdomLab/ELUNVERA"
+rust-version = "1.97.1"
+
+[workspace.lints.rust]
+missing_docs = "deny"
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+all = "deny"
+pedantic = "deny"
